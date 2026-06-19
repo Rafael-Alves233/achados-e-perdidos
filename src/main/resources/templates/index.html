@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="container">
+            <p class="eyebrow">Universidade Federal do Espirito Santo</p>
+            <h1>Achados e Perdidos</h1>
+            <p class="subtitle">Encontre e divulgue objetos perdidos na UFES.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section-header">
+            <div>
+                <p class="eyebrow">Lista atual</p>
+                <h2>Anuncios ativos</h2>
+            </div>
+            <span class="counter" th:text="${#lists.size(anuncios)} + ' ativos'">0 ativos</span>
+        </section>
+
+        <section class="empty-state" th:if="${#lists.isEmpty(anuncios)}">
+            <h3>Nenhum anuncio ativo encontrado</h3>
+            <p>Quando um objeto perdido ou encontrado for cadastrado, ele aparecera aqui.</p>
+        </section>
+
+        <section class="anuncios-grid" th:if="${!#lists.isEmpty(anuncios)}">
+            <article class="anuncio-card" th:each="anuncio : ${anuncios}">
+                <div class="card-header">
+                    <span class="badge" th:text="${anuncio.tipoAnuncio}">PERDIDO</span>
+                    <span class="date" th:text="${#temporals.format(anuncio.data, 'dd/MM/yyyy')}">18/06/2026</span>
+                </div>
+
+                <h3 th:text="${anuncio.titulo}">Titulo do anuncio</h3>
+                <p class="description" th:text="${anuncio.descricao}">Descricao do anuncio.</p>
+
+                <dl class="details">
+                    <div>
+                        <dt>Categoria</dt>
+                        <dd th:text="${anuncio.categoria.nome}">Categoria</dd>
+                    </div>
+                    <div>
+                        <dt>Local</dt>
+                        <dd th:text="${anuncio.local}">Local</dd>
+                    </div>
+                    <div>
+                        <dt>Publicado por</dt>
+                        <dd th:text="${anuncio.usuario.nome}">Usuario</dd>
+                    </div>
+                </dl>
+            </article>
+        </section>
+    </main>
+</body>
+
+</html>
