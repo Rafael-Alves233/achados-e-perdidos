@@ -1,11 +1,34 @@
 # Achados e Perdidos
 
-Sistema web para cadastro, busca e gerenciamento de objetos perdidos ou encontrados dentro de uma instituição de ensino.
+Sistema web em desenvolvimento para auxiliar a comunidade da Universidade Federal do Espírito Santo (UFES) na divulgação e recuperação de objetos perdidos ou encontrados no campus.
 
+## Descrição do Sistema
 
+### Problema
 
+Objetos pessoais são frequentemente perdidos ou encontrados em salas, laboratórios, bibliotecas, corredores e demais espaços da universidade. Sem um canal centralizado, a comunicação costuma acontecer de forma dispersa, por grupos de mensagens, redes sociais ou avisos informais. Isso dificulta o encontro entre quem perdeu um objeto e quem o encontrou.
 
+O sistema de Achados e Perdidos busca centralizar essas informações em uma aplicação web. Por meio dela, a comunidade universitária poderá publicar anúncios, consultar objetos registrados e acompanhar se uma ocorrência ainda está ativa ou já foi resolvida.
 
+### Usuários
+
+- **Usuário comum:** integrante da comunidade universitária, como estudante, professor, servidor ou colaborador. Poderá consultar anúncios e, após autenticação, publicar e gerenciar os próprios anúncios.
+- **Administrador:** responsável por acompanhar o conteúdo publicado e realizar ações administrativas quando necessário.
+
+### Principais Funcionalidades
+
+O escopo previsto para o sistema inclui:
+
+- Cadastro e autenticação de usuários;
+- Publicação de anúncios de objetos perdidos ou encontrados;
+- Listagem e visualização dos detalhes dos anúncios;
+- Busca e filtros por tipo, categoria e local;
+- Edição e exclusão dos próprios anúncios;
+- Inclusão de imagem do objeto;
+- Marcação de anúncios como resolvidos quando o objeto for devolvido;
+- Administração dos anúncios publicados.
+
+As seções de funcionalidades implementadas e planejadas, apresentadas mais adiante, indicam o estado atual do desenvolvimento.
 
 ## Diagrama de Classes do Domínio
 
