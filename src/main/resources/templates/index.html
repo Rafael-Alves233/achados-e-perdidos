@@ -23,8 +23,13 @@
                 <p class="eyebrow">Lista atual</p>
                 <h2>Anuncios ativos</h2>
             </div>
-            <span class="counter" th:text="${#lists.size(anuncios)} + ' ativos'">0 ativos</span>
+            <div class="section-actions">
+                <a class="button" th:href="@{/anuncios/novo}">Cadastrar anuncio</a>
+                <span class="counter" th:text="${#lists.size(anuncios)} + ' ativos'">0 ativos</span>
+            </div>
         </section>
+
+        <p class="flash-message" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
 
         <section class="empty-state" th:if="${#lists.isEmpty(anuncios)}">
             <h3>Nenhum anuncio ativo encontrado</h3>

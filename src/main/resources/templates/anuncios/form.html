@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar anuncio - Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar topbar-compact">
+        <div class="container">
+            <p class="eyebrow">Universidade Federal do Espirito Santo</p>
+            <h1>Cadastrar anuncio</h1>
+            <p class="subtitle">Registre um objeto perdido ou encontrado no campus.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section">
+            <div class="section-header">
+                <div>
+                    <p class="eyebrow">Novo registro</p>
+                    <h2>Dados do anuncio</h2>
+                </div>
+                <a class="link-button" th:href="@{/}">Voltar</a>
+            </div>
+
+            <form class="form-card" th:action="@{/anuncios}" th:object="${anuncioFormDto}" method="post">
+                <div class="form-field">
+                    <label for="titulo">Titulo</label>
+                    <input id="titulo" type="text" th:field="*{titulo}" maxlength="120" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}">Erro</p>
+                </div>
+
+                <div class="form-field">
+                    <label for="tipoAnuncio">Tipo</label>
+                    <select id="tipoAnuncio" th:field="*{tipoAnuncio}" required>
+                        <option value="">Selecione</option>
+                        <option th:each="tipo : ${tiposAnuncio}" th:value="${tipo}" th:text="${tipo}">PERDIDO</option>
+                    </select>
+                    <p class="field-error" th:if="${#fields.hasErrors('tipoAnuncio')}" th:errors="*{tipoAnuncio}">Erro</p>
+                </div>
+
+                <div class="form-field">
+                    <label for="categoriaId">Categoria</label>
+                    <select id="categoriaId" th:field="*{categoriaId}" required>
+                        <option value="">Selecione</option>
+                        <option th:each="categoria : ${categorias}" th:value="${categoria.id}"
+                            th:text="${categoria.nome}">Categoria</option>
+                    </select>
+                    <p class="field-error" th:if="${#fields.hasErrors('categoriaId')}" th:errors="*{categoriaId}">Erro</p>
+                </div>
+
+                <div class="form-field">
+                    <label for="local">Local</label>
+                    <input id="local" type="text" th:field="*{local}" maxlength="120" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('local')}" th:errors="*{local}">Erro</p>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="descricao">Descricao</label>
+                    <textarea id="descricao" rows="5" th:field="*{descricao}" maxlength="1000" required></textarea>
+                    <p class="field-error" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">Erro</p>
+                </div>
+
+                <div class="form-actions">
+                    <a class="link-button" th:href="@{/}">Cancelar</a>
+                    <button class="button" type="submit">Salvar anuncio</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>

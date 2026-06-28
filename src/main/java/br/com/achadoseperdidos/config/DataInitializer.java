@@ -9,11 +9,10 @@ import org.springframework.context.annotation.Configuration;
 import br.com.achadoseperdidos.model.Anuncio;
 import br.com.achadoseperdidos.model.Categoria;
 import br.com.achadoseperdidos.model.TipoAnuncio;
-import br.com.achadoseperdidos.model.TipoUsuario;
 import br.com.achadoseperdidos.model.Usuario;
 import br.com.achadoseperdidos.repository.AnuncioRepository;
 import br.com.achadoseperdidos.repository.CategoriaRepository;
-import br.com.achadoseperdidos.repository.UsuarioRepository;
+import br.com.achadoseperdidos.service.UsuarioService;
 
 /**
  * Configuracao responsavel por carregar dados iniciais para demonstracao em
@@ -23,32 +22,28 @@ import br.com.achadoseperdidos.repository.UsuarioRepository;
 public class DataInitializer {
 
     /**
-     * Cria categorias, usuario e anuncios de exemplo quando o banco esta vazio.
+     * Garante categorias e usuario padrao, alem de criar anuncios de exemplo
+     * quando ainda nao existem anuncios cadastrados.
      *
-     * @param usuarioRepository repositorio de usuarios
+     * @param usuarioService servico de usuarios
      * @param categoriaRepository repositorio de categorias
      * @param anuncioRepository repositorio de anuncios
      * @return rotina executada na inicializacao da aplicacao
      */
     @Bean
     CommandLineRunner carregarDadosIniciais(
-            UsuarioRepository usuarioRepository,
+            UsuarioService usuarioService,
             CategoriaRepository categoriaRepository,
             AnuncioRepository anuncioRepository) {
         return args -> {
+            Usuario usuario = usuarioService.obterOuCriarUsuarioPadrao();
+            Categoria documentos = categoriaPadrao("Documentos", categoriaRepository);
+            Categoria eletronicos = categoriaPadrao("Eletronicos", categoriaRepository);
+            Categoria outros = categoriaPadrao("Outros", categoriaRepository);
+
             if (anuncioRepository.count() > 0) {
                 return;
             }
-
-            Usuario usuario = new Usuario();
-            usuario.setNome("Secretaria Academica");
-            usuario.setEmail("secretaria@faculdade.edu");
-            usuario.setSenha("123456");
-            usuario.setTipoUsuario(TipoUsuario.ADMIN);
-            usuarioRepository.save(usuario);
-
-            Categoria documentos = novaCategoria("Documentos", categoriaRepository);
-            Categoria eletronicos = novaCategoria("Eletronicos", categoriaRepository);
 
             Anuncio cracha = new Anuncio();
             cracha.setTitulo("Cracha encontrado");
@@ -69,7 +64,13 @@ public class DataInitializer {
             fone.setData(LocalDate.now());
             fone.setUsuario(usuario);
             anuncioRepository.save(fone);
+
         };
+    }
+
+    private Categoria categoriaPadrao(String nome, CategoriaRepository categoriaRepository) {
+        return categoriaRepository.findByNome(nome)
+                .orElseGet(() -> novaCategoria(nome, categoriaRepository));
     }
 
     private Categoria novaCategoria(String nome, CategoriaRepository categoriaRepository) {

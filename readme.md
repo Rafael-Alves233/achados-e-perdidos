@@ -105,15 +105,16 @@ classDiagram
 ## Funcionalidades Implementadas
 
 - Listagem inicial de anúncios ativos
+- Cadastro inicial de anúncios via formulário
 - Entidades principais do domínio
 - Banco H2 em memória
 - Página inicial com Thymeleaf
 
 ## Funcionalidades Planejadas
 
-- Cadastro de anúncios
 - Login de usuários
 - Busca e filtros
+- Visualização dos detalhes dos anúncios
 - Edição e exclusão de anúncios
 - Marcar anúncio como resolvido
 - Upload de imagem
