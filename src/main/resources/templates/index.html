@@ -30,10 +30,45 @@
         </section>
 
         <p class="flash-message" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+        <p class="flash-message flash-message-error" th:if="${mensagemErro}" th:text="${mensagemErro}">Erro</p>
+
+        <form class="filter-panel" th:action="@{/}" th:object="${filtro}" method="get">
+            <div class="form-field">
+                <label for="termo">Busca</label>
+                <input id="termo" type="search" th:field="*{termo}" placeholder="Titulo ou descricao">
+            </div>
+
+            <div class="form-field">
+                <label for="tipoAnuncio">Tipo</label>
+                <select id="tipoAnuncio" th:field="*{tipoAnuncio}">
+                    <option value="">Todos</option>
+                    <option th:each="tipo : ${tiposAnuncio}" th:value="${tipo}" th:text="${tipo}">PERDIDO</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="categoriaId">Categoria</label>
+                <select id="categoriaId" th:field="*{categoriaId}">
+                    <option value="">Todas</option>
+                    <option th:each="categoria : ${categorias}" th:value="${categoria.id}"
+                        th:text="${categoria.nome}">Categoria</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="local">Local</label>
+                <input id="local" type="search" th:field="*{local}" placeholder="Ex.: CT-13">
+            </div>
+
+            <div class="filter-actions">
+                <a class="link-button" th:href="@{/}">Limpar</a>
+                <button class="button" type="submit">Filtrar</button>
+            </div>
+        </form>
 
         <section class="empty-state" th:if="${#lists.isEmpty(anuncios)}">
             <h3>Nenhum anuncio ativo encontrado</h3>
-            <p>Quando um objeto perdido ou encontrado for cadastrado, ele aparecera aqui.</p>
+            <p>Nenhum anuncio corresponde aos filtros informados.</p>
         </section>
 
         <section class="anuncios-grid" th:if="${!#lists.isEmpty(anuncios)}">
@@ -60,6 +95,8 @@
                         <dd th:text="${anuncio.usuario.nome}">Usuario</dd>
                     </div>
                 </dl>
+
+                <a class="card-action" th:href="@{/anuncios/{id}(id=${anuncio.id})}">Ver detalhes</a>
             </article>
         </section>
     </main>

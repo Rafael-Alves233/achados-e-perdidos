@@ -2,10 +2,12 @@ package br.com.achadoseperdidos.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.achadoseperdidos.dto.AnuncioFiltroDto;
 import br.com.achadoseperdidos.dto.AnuncioFormDto;
 import br.com.achadoseperdidos.model.Anuncio;
 import br.com.achadoseperdidos.model.Categoria;
@@ -34,13 +36,30 @@ public class AnuncioService {
     }
 
     /**
-     * Lista os anuncios que ainda estao ativos no sistema.
+     * Lista os anuncios ativos aplicando filtros opcionais.
      *
-     * @return anuncios ativos ordenados pela data mais recente
+     * @param filtro dados usados para filtrar a listagem
+     * @return anuncios ativos que correspondem aos filtros informados
      */
     @Transactional(readOnly = true)
-    public List<Anuncio> listarAtivos() {
-        return anuncioRepository.findByStatusOrderByDataDesc(StatusAnuncio.ATIVO);
+    public List<Anuncio> listarAtivos(AnuncioFiltroDto filtro) {
+        return anuncioRepository.buscarAtivosComFiltros(
+                StatusAnuncio.ATIVO,
+                normalizarTexto(filtro.getTermo()),
+                filtro.getTipoAnuncio(),
+                filtro.getCategoriaId(),
+                normalizarTexto(filtro.getLocal()));
+    }
+
+    /**
+     * Busca um anuncio pelo identificador.
+     *
+     * @param id identificador do anuncio
+     * @return anuncio encontrado, quando existir
+     */
+    @Transactional(readOnly = true)
+    public Optional<Anuncio> buscarPorId(Long id) {
+        return anuncioRepository.findById(id);
     }
 
     /**
@@ -76,5 +95,12 @@ public class AnuncioService {
         anuncio.setUsuario(usuario);
 
         return anuncioRepository.save(anuncio);
+    }
+
+    private String normalizarTexto(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        return valor.trim();
     }
 }

@@ -106,6 +106,8 @@ classDiagram
 
 - Listagem inicial de anúncios ativos
 - Cadastro inicial de anúncios via formulário
+- Visualização dos detalhes dos anúncios
+- Busca e filtros por texto, tipo, categoria e local
 - Entidades principais do domínio
 - Banco H2 em memória
 - Página inicial com Thymeleaf
@@ -113,8 +115,6 @@ classDiagram
 ## Funcionalidades Planejadas
 
 - Login de usuários
-- Busca e filtros
-- Visualização dos detalhes dos anúncios
 - Edição e exclusão de anúncios
 - Marcar anúncio como resolvido
 - Upload de imagem

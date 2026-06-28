@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${anuncio.titulo} + ' - Achados e Perdidos'">Detalhes - Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar topbar-compact">
+        <div class="container">
+            <p class="eyebrow">Universidade Federal do Espirito Santo</p>
+            <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
+            <h1 th:text="${anuncio.titulo}">Titulo do anuncio</h1>
+            <p class="subtitle">Informacoes completas do anuncio selecionado.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section-header">
+            <div>
+                <p class="eyebrow">Detalhes</p>
+                <h2>Dados do anuncio</h2>
+            </div>
+            <a class="link-button" th:href="@{/}">Voltar</a>
+        </section>
+
+        <article class="detail-card">
+            <div class="detail-header">
+                <span class="badge" th:text="${anuncio.tipoAnuncio}">PERDIDO</span>
+                <span class="counter" th:text="${anuncio.status}">ATIVO</span>
+            </div>
+
+            <p class="detail-description" th:text="${anuncio.descricao}">Descricao do anuncio.</p>
+
+            <dl class="detail-list">
+                <div>
+                    <dt>Categoria</dt>
+                    <dd th:text="${anuncio.categoria.nome}">Categoria</dd>
+                </div>
+                <div>
+                    <dt>Local</dt>
+                    <dd th:text="${anuncio.local}">Local</dd>
+                </div>
+                <div>
+                    <dt>Data</dt>
+                    <dd th:text="${#temporals.format(anuncio.data, 'dd/MM/yyyy')}">18/06/2026</dd>
+                </div>
+                <div>
+                    <dt>Publicado por</dt>
+                    <dd th:text="${anuncio.usuario.nome}">Usuario</dd>
+                </div>
+            </dl>
+        </article>
+    </main>
+</body>
+
+</html>

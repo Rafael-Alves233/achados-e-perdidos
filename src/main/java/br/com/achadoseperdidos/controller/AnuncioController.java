@@ -5,11 +5,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.achadoseperdidos.dto.AnuncioFormDto;
+import br.com.achadoseperdidos.model.Anuncio;
 import br.com.achadoseperdidos.model.TipoAnuncio;
 import br.com.achadoseperdidos.service.AnuncioService;
 import jakarta.validation.Valid;
@@ -40,6 +42,27 @@ public class AnuncioController {
         }
         carregarDadosFormulario(model);
         return "anuncios/form";
+    }
+
+    /**
+     * Exibe os detalhes de um anuncio especifico.
+     *
+     * @param id identificador do anuncio
+     * @param model objeto usado para enviar dados para o template Thymeleaf
+     * @param redirectAttributes atributos enviados apos redirecionamento
+     * @return nome do template de detalhes ou redirecionamento para a pagina inicial
+     */
+    @GetMapping("/{id}")
+    public String detalhes(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        return anuncioService.buscarPorId(id)
+                .map(anuncio -> exibirDetalhes(anuncio, model))
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("mensagemErro", "Anuncio nao encontrado.");
+                    return "redirect:/";
+                });
     }
 
     /**
@@ -77,5 +100,10 @@ public class AnuncioController {
     private void carregarDadosFormulario(Model model) {
         model.addAttribute("tiposAnuncio", TipoAnuncio.values());
         model.addAttribute("categorias", anuncioService.listarCategorias());
+    }
+
+    private String exibirDetalhes(Anuncio anuncio, Model model) {
+        model.addAttribute("anuncio", anuncio);
+        return "anuncios/detalhes";
     }
 }
