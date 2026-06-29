@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anuncios resolvidos - Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar topbar-compact">
+        <div class="container">
+            <p class="eyebrow">Universidade Federal do Espirito Santo</p>
+            <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
+            <h1>Anuncios resolvidos</h1>
+            <p class="subtitle">Historico de anuncios encerrados no sistema.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section-header">
+            <div>
+                <p class="eyebrow">Historico</p>
+                <h2>Anuncios resolvidos</h2>
+            </div>
+            <div class="section-actions">
+                <a class="link-button" th:href="@{/}">Voltar</a>
+                <span class="counter" th:text="${#lists.size(anuncios)} + ' resolvidos'">0 resolvidos</span>
+            </div>
+        </section>
+
+        <section class="empty-state" th:if="${#lists.isEmpty(anuncios)}">
+            <h3>Nenhum anuncio resolvido</h3>
+            <p>Os anuncios marcados como resolvidos aparecerao aqui.</p>
+        </section>
+
+        <section class="anuncios-grid" th:if="${!#lists.isEmpty(anuncios)}">
+            <article class="anuncio-card" th:each="anuncio : ${anuncios}">
+                <div class="card-header">
+                    <span class="badge" th:text="${anuncio.tipoAnuncio}">PERDIDO</span>
+                    <span class="counter" th:text="${anuncio.status}">RESOLVIDO</span>
+                </div>
+
+                <h3 th:text="${anuncio.titulo}">Titulo do anuncio</h3>
+                <p class="description" th:text="${anuncio.descricao}">Descricao do anuncio.</p>
+
+                <dl class="details">
+                    <div>
+                        <dt>Categoria</dt>
+                        <dd th:text="${anuncio.categoria.nome}">Categoria</dd>
+                    </div>
+                    <div>
+                        <dt>Local</dt>
+                        <dd th:text="${anuncio.local}">Local</dd>
+                    </div>
+                    <div>
+                        <dt>Data</dt>
+                        <dd th:text="${#temporals.format(anuncio.data, 'dd/MM/yyyy')}">18/06/2026</dd>
+                    </div>
+                    <div>
+                        <dt>Publicado por</dt>
+                        <dd th:text="${anuncio.usuario.nome}">Usuario</dd>
+                    </div>
+                </dl>
+
+                <a class="card-action" th:href="@{/anuncios/{id}(id=${anuncio.id})}">Ver detalhes</a>
+            </article>
+        </section>
+    </main>
+</body>
+
+</html>

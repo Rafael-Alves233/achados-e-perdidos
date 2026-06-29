@@ -24,6 +24,7 @@
                 <h2>Anuncios ativos</h2>
             </div>
             <div class="section-actions">
+                <a class="link-button" th:href="@{/anuncios/resolvidos}">Historico</a>
                 <a class="button" th:href="@{/anuncios/novo}">Cadastrar anuncio</a>
                 <span class="counter" th:text="${#lists.size(anuncios)} + ' ativos'">0 ativos</span>
             </div>

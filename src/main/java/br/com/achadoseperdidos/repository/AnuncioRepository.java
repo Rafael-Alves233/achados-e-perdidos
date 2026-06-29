@@ -16,6 +16,22 @@ import br.com.achadoseperdidos.model.TipoAnuncio;
 public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
 
     /**
+     * Lista anuncios por status carregando dados usados nos templates.
+     *
+     * @param status status usado como filtro
+     * @return lista de anuncios encontrados
+     */
+    @Query("""
+            select a
+            from Anuncio a
+            join fetch a.categoria
+            join fetch a.usuario
+            where a.status = :status
+            order by a.data desc
+            """)
+    List<Anuncio> buscarPorStatus(@Param("status") StatusAnuncio status);
+
+    /**
      * Lista anuncios ativos aplicando filtros opcionais de busca.
      *
      * @param status status usado como filtro obrigatorio

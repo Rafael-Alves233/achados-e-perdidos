@@ -45,6 +45,18 @@ public class AnuncioController {
     }
 
     /**
+     * Exibe os anuncios que ja foram marcados como resolvidos.
+     *
+     * @param model objeto usado para enviar dados para o template Thymeleaf
+     * @return nome do template de anuncios resolvidos
+     */
+    @GetMapping("/resolvidos")
+    public String resolvidos(Model model) {
+        model.addAttribute("anuncios", anuncioService.listarResolvidos());
+        return "anuncios/resolvidos";
+    }
+
+    /**
      * Exibe os detalhes de um anuncio especifico.
      *
      * @param id identificador do anuncio
@@ -94,6 +106,27 @@ public class AnuncioController {
         }
 
         redirectAttributes.addFlashAttribute("mensagem", "Anuncio cadastrado com sucesso.");
+        return "redirect:/";
+    }
+
+    /**
+     * Marca um anuncio como resolvido e retorna para a pagina inicial.
+     *
+     * @param id identificador do anuncio
+     * @param redirectAttributes atributos enviados apos redirecionamento
+     * @return redirecionamento para a pagina inicial
+     */
+    @PostMapping("/{id}/resolver")
+    public String resolver(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        try {
+            anuncioService.resolver(id);
+            redirectAttributes.addFlashAttribute("mensagem", "Anuncio marcado como resolvido.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("mensagemErro", exception.getMessage());
+        }
+
         return "redirect:/";
     }
 

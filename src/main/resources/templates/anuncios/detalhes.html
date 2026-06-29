@@ -53,6 +53,11 @@
                     <dd th:text="${anuncio.usuario.nome}">Usuario</dd>
                 </div>
             </dl>
+
+            <form class="detail-actions" th:if="${anuncio.status.name() == 'ATIVO'}"
+                th:action="@{/anuncios/{id}/resolver(id=${anuncio.id})}" method="post">
+                <button class="button" type="submit">Marcar como resolvido</button>
+            </form>
         </article>
     </main>
 </body>

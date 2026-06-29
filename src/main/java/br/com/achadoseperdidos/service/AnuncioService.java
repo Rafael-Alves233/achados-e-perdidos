@@ -52,6 +52,16 @@ public class AnuncioService {
     }
 
     /**
+     * Lista os anuncios que ja foram resolvidos.
+     *
+     * @return anuncios marcados como resolvidos
+     */
+    @Transactional(readOnly = true)
+    public List<Anuncio> listarResolvidos() {
+        return anuncioRepository.buscarPorStatus(StatusAnuncio.RESOLVIDO);
+    }
+
+    /**
      * Busca um anuncio pelo identificador.
      *
      * @param id identificador do anuncio
@@ -95,6 +105,19 @@ public class AnuncioService {
         anuncio.setUsuario(usuario);
 
         return anuncioRepository.save(anuncio);
+    }
+
+    /**
+     * Marca um anuncio como resolvido, retirando-o da listagem de ativos.
+     *
+     * @param id identificador do anuncio
+     */
+    @Transactional
+    public void resolver(Long id) {
+        Anuncio anuncio = anuncioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Anuncio nao encontrado."));
+
+        anuncio.setStatus(StatusAnuncio.RESOLVIDO);
     }
 
     private String normalizarTexto(String valor) {
