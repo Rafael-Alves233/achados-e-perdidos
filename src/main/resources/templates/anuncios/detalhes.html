@@ -27,6 +27,9 @@
             <a class="link-button" th:href="@{/}">Voltar</a>
         </section>
 
+        <p class="flash-message" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+        <p class="flash-message flash-message-error" th:if="${mensagemErro}" th:text="${mensagemErro}">Erro</p>
+
         <article class="detail-card">
             <div class="detail-header">
                 <span class="badge" th:text="${anuncio.tipoAnuncio}">PERDIDO</span>
@@ -54,10 +57,13 @@
                 </div>
             </dl>
 
-            <form class="detail-actions" th:if="${anuncio.status.name() == 'ATIVO'}"
-                th:action="@{/anuncios/{id}/resolver(id=${anuncio.id})}" method="post">
-                <button class="button" type="submit">Marcar como resolvido</button>
-            </form>
+            <div class="detail-actions">
+                <a class="link-button" th:href="@{/anuncios/{id}/editar(id=${anuncio.id})}">Editar</a>
+                <form th:if="${anuncio.status.name() == 'ATIVO'}"
+                    th:action="@{/anuncios/{id}/resolver(id=${anuncio.id})}" method="post">
+                    <button class="button" type="submit">Marcar como resolvido</button>
+                </form>
+            </div>
         </article>
     </main>
 </body>

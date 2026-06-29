@@ -69,7 +69,18 @@ public class AnuncioService {
      */
     @Transactional(readOnly = true)
     public Optional<Anuncio> buscarPorId(Long id) {
-        return anuncioRepository.findById(id);
+        return anuncioRepository.buscarPorIdComRelacionamentos(id);
+    }
+
+    /**
+     * Busca um anuncio e converte seus dados para preenchimento do formulario.
+     *
+     * @param id identificador do anuncio
+     * @return dados do formulario preenchidos, quando o anuncio existir
+     */
+    @Transactional(readOnly = true)
+    public Optional<AnuncioFormDto> buscarFormularioEdicao(Long id) {
+        return buscarPorId(id).map(this::criarFormulario);
     }
 
     /**
@@ -95,16 +106,31 @@ public class AnuncioService {
         Usuario usuario = usuarioService.obterOuCriarUsuarioPadrao();
 
         Anuncio anuncio = new Anuncio();
-        anuncio.setTitulo(form.getTitulo().trim());
-        anuncio.setDescricao(form.getDescricao().trim());
-        anuncio.setTipoAnuncio(form.getTipoAnuncio());
-        anuncio.setCategoria(categoria);
-        anuncio.setLocal(form.getLocal().trim());
+        preencherDadosEditaveis(anuncio, form, categoria);
         anuncio.setData(LocalDate.now());
         anuncio.setStatus(StatusAnuncio.ATIVO);
         anuncio.setUsuario(usuario);
 
         return anuncioRepository.save(anuncio);
+    }
+
+    /**
+     * Atualiza os dados editaveis de um anuncio existente.
+     *
+     * @param id identificador do anuncio
+     * @param form dados informados pelo usuario
+     * @return anuncio atualizado
+     */
+    @Transactional
+    public Anuncio atualizar(Long id, AnuncioFormDto form) {
+        Anuncio anuncio = anuncioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Anuncio nao encontrado."));
+        Categoria categoria = categoriaRepository.findById(form.getCategoriaId())
+                .orElseThrow(() -> new IllegalArgumentException("Categoria nao encontrada."));
+
+        preencherDadosEditaveis(anuncio, form, categoria);
+
+        return anuncio;
     }
 
     /**
@@ -118,6 +144,24 @@ public class AnuncioService {
                 .orElseThrow(() -> new IllegalArgumentException("Anuncio nao encontrado."));
 
         anuncio.setStatus(StatusAnuncio.RESOLVIDO);
+    }
+
+    private AnuncioFormDto criarFormulario(Anuncio anuncio) {
+        AnuncioFormDto form = new AnuncioFormDto();
+        form.setTitulo(anuncio.getTitulo());
+        form.setDescricao(anuncio.getDescricao());
+        form.setTipoAnuncio(anuncio.getTipoAnuncio());
+        form.setCategoriaId(anuncio.getCategoria().getId());
+        form.setLocal(anuncio.getLocal());
+        return form;
+    }
+
+    private void preencherDadosEditaveis(Anuncio anuncio, AnuncioFormDto form, Categoria categoria) {
+        anuncio.setTitulo(form.getTitulo().trim());
+        anuncio.setDescricao(form.getDescricao().trim());
+        anuncio.setTipoAnuncio(form.getTipoAnuncio());
+        anuncio.setCategoria(categoria);
+        anuncio.setLocal(form.getLocal().trim());
     }
 
     private String normalizarTexto(String valor) {

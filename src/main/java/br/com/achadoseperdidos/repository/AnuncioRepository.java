@@ -1,6 +1,7 @@
 package br.com.achadoseperdidos.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,21 @@ import br.com.achadoseperdidos.model.TipoAnuncio;
  * Repositorio responsavel pelas operacoes de persistencia de anuncios.
  */
 public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
+
+    /**
+     * Busca um anuncio pelo id carregando dados usados na pagina de detalhes.
+     *
+     * @param id identificador do anuncio
+     * @return anuncio encontrado, quando existir
+     */
+    @Query("""
+            select a
+            from Anuncio a
+            join fetch a.categoria
+            join fetch a.usuario
+            where a.id = :id
+            """)
+    Optional<Anuncio> buscarPorIdComRelacionamentos(@Param("id") Long id);
 
     /**
      * Lista anuncios por status carregando dados usados nos templates.

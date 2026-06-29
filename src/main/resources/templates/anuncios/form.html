@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar anuncio - Achados e Perdidos</title>
+    <title th:text="${tituloPagina} + ' - Achados e Perdidos'">Cadastrar anuncio - Achados e Perdidos</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 
@@ -13,8 +13,8 @@
         <div class="container">
             <p class="eyebrow">Universidade Federal do Espirito Santo</p>
             <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
-            <h1>Cadastrar anuncio</h1>
-            <p class="subtitle">Registre um objeto perdido ou encontrado no campus.</p>
+            <h1 th:text="${tituloPagina}">Cadastrar anuncio</h1>
+            <p class="subtitle" th:text="${subtituloPagina}">Registre um objeto perdido ou encontrado no campus.</p>
         </div>
     </header>
 
@@ -22,13 +22,15 @@
         <section class="form-section">
             <div class="section-header">
                 <div>
-                    <p class="eyebrow">Novo registro</p>
+                    <p class="eyebrow" th:text="${rotuloSecao}">Novo registro</p>
                     <h2>Dados do anuncio</h2>
                 </div>
-                <a class="link-button" th:href="@{/}">Voltar</a>
+                <a class="link-button" th:href="${modoEdicao} ? @{/anuncios/{id}(id=${anuncioId})} : @{/}">Voltar</a>
             </div>
 
-            <form class="form-card" th:action="@{/anuncios}" th:object="${anuncioFormDto}" method="post">
+            <form class="form-card"
+                th:action="${modoEdicao} ? @{/anuncios/{id}/editar(id=${anuncioId})} : @{/anuncios}"
+                th:object="${anuncioFormDto}" method="post">
                 <div class="form-field">
                     <label for="titulo">Titulo</label>
                     <input id="titulo" type="text" th:field="*{titulo}" maxlength="120" required>
@@ -67,8 +69,8 @@
                 </div>
 
                 <div class="form-actions">
-                    <a class="link-button" th:href="@{/}">Cancelar</a>
-                    <button class="button" type="submit">Salvar anuncio</button>
+                    <a class="link-button" th:href="${modoEdicao} ? @{/anuncios/{id}(id=${anuncioId})} : @{/}">Cancelar</a>
+                    <button class="button" type="submit" th:text="${rotuloBotao}">Salvar anuncio</button>
                 </div>
             </form>
         </section>

@@ -108,6 +108,7 @@ classDiagram
 - Cadastro inicial de anúncios via formulário
 - Visualização dos detalhes dos anúncios
 - Busca e filtros por texto, tipo, categoria e local
+- Edição de anúncios
 - Marcação de anúncios como resolvidos
 - Histórico/listagem de anúncios resolvidos
 - Entidades principais do domínio
@@ -117,7 +118,7 @@ classDiagram
 ## Funcionalidades Planejadas
 
 - Login de usuários
-- Edição e exclusão de anúncios
+- Exclusão de anúncios
 - Upload de imagem
 
 ## Ferramentas Planejadas

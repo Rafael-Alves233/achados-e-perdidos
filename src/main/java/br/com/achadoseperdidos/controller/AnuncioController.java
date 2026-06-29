@@ -40,7 +40,7 @@ public class AnuncioController {
         if (!model.containsAttribute("anuncioFormDto")) {
             model.addAttribute("anuncioFormDto", new AnuncioFormDto());
         }
-        carregarDadosFormulario(model);
+        carregarDadosFormularioCadastro(model);
         return "anuncios/form";
     }
 
@@ -54,6 +54,36 @@ public class AnuncioController {
     public String resolvidos(Model model) {
         model.addAttribute("anuncios", anuncioService.listarResolvidos());
         return "anuncios/resolvidos";
+    }
+
+    /**
+     * Exibe o formulario de edicao de um anuncio.
+     *
+     * @param id identificador do anuncio
+     * @param model objeto usado para enviar dados para o template Thymeleaf
+     * @param redirectAttributes atributos enviados apos redirecionamento
+     * @return nome do template do formulario ou redirecionamento para a pagina inicial
+     */
+    @GetMapping("/{id}/editar")
+    public String editar(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        if (model.containsAttribute("anuncioFormDto")) {
+            carregarDadosFormularioEdicao(model, id);
+            return "anuncios/form";
+        }
+
+        return anuncioService.buscarFormularioEdicao(id)
+                .map(form -> {
+                    model.addAttribute("anuncioFormDto", form);
+                    carregarDadosFormularioEdicao(model, id);
+                    return "anuncios/form";
+                })
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("mensagemErro", "Anuncio nao encontrado.");
+                    return "redirect:/";
+                });
     }
 
     /**
@@ -93,7 +123,7 @@ public class AnuncioController {
             Model model,
             RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            carregarDadosFormulario(model);
+            carregarDadosFormularioCadastro(model);
             return "anuncios/form";
         }
 
@@ -101,12 +131,51 @@ public class AnuncioController {
             anuncioService.salvar(anuncioFormDto);
         } catch (IllegalArgumentException exception) {
             bindingResult.rejectValue("categoriaId", "categoria.invalida", exception.getMessage());
-            carregarDadosFormulario(model);
+            carregarDadosFormularioCadastro(model);
             return "anuncios/form";
         }
 
         redirectAttributes.addFlashAttribute("mensagem", "Anuncio cadastrado com sucesso.");
         return "redirect:/";
+    }
+
+    /**
+     * Atualiza um anuncio existente quando os dados do formulario sao validos.
+     *
+     * @param id identificador do anuncio
+     * @param anuncioFormDto dados preenchidos no formulario
+     * @param bindingResult resultado da validacao do formulario
+     * @param model objeto usado para reenviar dados para o template
+     * @param redirectAttributes atributos enviados apos redirecionamento
+     * @return redirecionamento para os detalhes ou formulario com erros
+     */
+    @PostMapping("/{id}/editar")
+    public String atualizar(
+            @PathVariable Long id,
+            @Valid @ModelAttribute AnuncioFormDto anuncioFormDto,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            carregarDadosFormularioEdicao(model, id);
+            return "anuncios/form";
+        }
+
+        try {
+            anuncioService.atualizar(id, anuncioFormDto);
+        } catch (IllegalArgumentException exception) {
+            if ("Categoria nao encontrada.".equals(exception.getMessage())) {
+                bindingResult.rejectValue("categoriaId", "categoria.invalida", exception.getMessage());
+                carregarDadosFormularioEdicao(model, id);
+                return "anuncios/form";
+            }
+
+            redirectAttributes.addFlashAttribute("mensagemErro", exception.getMessage());
+            return "redirect:/";
+        }
+
+        redirectAttributes.addFlashAttribute("mensagem", "Anuncio atualizado com sucesso.");
+        return "redirect:/anuncios/" + id;
     }
 
     /**
@@ -130,7 +199,26 @@ public class AnuncioController {
         return "redirect:/";
     }
 
-    private void carregarDadosFormulario(Model model) {
+    private void carregarDadosFormularioCadastro(Model model) {
+        carregarOpcoesFormulario(model);
+        model.addAttribute("modoEdicao", false);
+        model.addAttribute("tituloPagina", "Cadastrar anuncio");
+        model.addAttribute("subtituloPagina", "Registre um objeto perdido ou encontrado no campus.");
+        model.addAttribute("rotuloSecao", "Novo registro");
+        model.addAttribute("rotuloBotao", "Salvar anuncio");
+    }
+
+    private void carregarDadosFormularioEdicao(Model model, Long id) {
+        carregarOpcoesFormulario(model);
+        model.addAttribute("modoEdicao", true);
+        model.addAttribute("anuncioId", id);
+        model.addAttribute("tituloPagina", "Editar anuncio");
+        model.addAttribute("subtituloPagina", "Atualize as informacoes do anuncio selecionado.");
+        model.addAttribute("rotuloSecao", "Edicao");
+        model.addAttribute("rotuloBotao", "Salvar alteracoes");
+    }
+
+    private void carregarOpcoesFormulario(Model model) {
         model.addAttribute("tiposAnuncio", TipoAnuncio.values());
         model.addAttribute("categorias", anuncioService.listarCategorias());
     }
