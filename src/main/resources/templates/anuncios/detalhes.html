@@ -67,6 +67,10 @@
                     th:action="@{/anuncios/{id}/resolver(id=${anuncio.id})}" method="post">
                     <button class="button" type="submit">Marcar como resolvido</button>
                 </form>
+                <form th:action="@{/anuncios/{id}/excluir(id=${anuncio.id})}" method="post"
+                    onsubmit="return confirm('Deseja realmente excluir este anuncio?');">
+                    <button class="button button-danger" type="submit">Excluir</button>
+                </form>
             </div>
         </article>
     </main>

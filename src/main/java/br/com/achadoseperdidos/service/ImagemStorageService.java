@@ -73,6 +73,30 @@ public class ImagemStorageService {
         return Optional.of("/uploads/" + nomeArquivo);
     }
 
+    /**
+     * Remove um arquivo de upload local quando o caminho pertence a /uploads.
+     *
+     * @param caminhoPublico caminho salvo no anuncio
+     */
+    public void remover(String caminhoPublico) {
+        if (caminhoPublico == null || !caminhoPublico.startsWith("/uploads/")) {
+            return;
+        }
+
+        String nomeArquivo = StringUtils.cleanPath(caminhoPublico.substring("/uploads/".length()));
+        Path arquivo = uploadDir.resolve(nomeArquivo).normalize();
+
+        if (!arquivo.startsWith(uploadDir)) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(arquivo);
+        } catch (IOException exception) {
+            throw new IllegalArgumentException("Nao foi possivel remover a imagem.", exception);
+        }
+    }
+
     private void validarArquivo(MultipartFile arquivo, String extensao) {
         String contentType = arquivo.getContentType();
         if (contentType == null || !TIPOS_PERMITIDOS.contains(contentType.toLowerCase(Locale.ROOT))) {

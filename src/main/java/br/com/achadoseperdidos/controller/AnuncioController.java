@@ -199,6 +199,27 @@ public class AnuncioController {
         return "redirect:/";
     }
 
+    /**
+     * Exclui um anuncio e retorna para a pagina inicial.
+     *
+     * @param id identificador do anuncio
+     * @param redirectAttributes atributos enviados apos redirecionamento
+     * @return redirecionamento para a pagina inicial
+     */
+    @PostMapping("/{id}/excluir")
+    public String excluir(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        try {
+            anuncioService.excluir(id);
+            redirectAttributes.addFlashAttribute("mensagem", "Anuncio excluido com sucesso.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("mensagemErro", exception.getMessage());
+        }
+
+        return "redirect:/";
+    }
+
     private void carregarDadosFormularioCadastro(Model model) {
         carregarOpcoesFormulario(model);
         model.addAttribute("modoEdicao", false);

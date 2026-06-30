@@ -12,6 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,8 @@ import org.springframework.mock.web.MockMultipartFile;
 @SpringBootTest(properties = "app.upload-dir=target/test-uploads")
 @AutoConfigureMockMvc
 class AnuncioFluxoIntegrationTest {
+
+    private static final Path TEST_UPLOAD_DIR = Paths.get("target/test-uploads");
 
     private final MockMvc mockMvc;
     private final JdbcTemplate jdbcTemplate;
@@ -218,6 +223,68 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(view().name("anuncios/resolvidos"))
                 .andExpect(content().string(containsString("Carteira perdida")))
                 .andExpect(content().string(containsString("RESOLVIDO")));
+    }
+
+    @Test
+    void deveExcluirAnuncioExistente() throws Exception {
+        Long anuncioId = cadastrarAnuncio(
+                "Guarda-chuva encontrado",
+                "Guarda-chuva preto encontrado na entrada.",
+                "ENCONTRADO",
+                documentosId,
+                "Entrada");
+
+        mockMvc.perform(post("/anuncios/{id}/excluir", anuncioId))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attribute("mensagem", "Anuncio excluido com sucesso."));
+
+        Long total = jdbcTemplate.queryForObject(
+                "select count(*) from anuncios where id = ?",
+                Long.class,
+                anuncioId);
+        assertThat(total).isZero();
+
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString("Guarda-chuva encontrado"))));
+    }
+
+    @Test
+    void deveInformarErroAoExcluirAnuncioInexistente() throws Exception {
+        mockMvc.perform(post("/anuncios/{id}/excluir", 9999L))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attribute("mensagemErro", "Anuncio nao encontrado."));
+    }
+
+    @Test
+    void deveRemoverArquivoDeUploadAoExcluirAnuncio() throws Exception {
+        MockMultipartFile imagem = imagemTeste("relogio.png", "image/png");
+
+        mockMvc.perform(multipart("/anuncios")
+                .file(imagem)
+                .param("titulo", "Relogio encontrado")
+                .param("descricao", "Relogio encontrado no laboratorio.")
+                .param("tipoAnuncio", "ENCONTRADO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Laboratorio"))
+                .andExpect(status().is3xxRedirection());
+
+        Long anuncioId = jdbcTemplate.queryForObject(
+                "select id from anuncios where titulo = ?",
+                Long.class,
+                "Relogio encontrado");
+        String imagemSalva = (String) buscarAnuncio(anuncioId).get("imagem");
+        Path arquivo = TEST_UPLOAD_DIR.resolve(imagemSalva.substring("/uploads/".length()));
+
+        assertThat(Files.exists(arquivo)).isTrue();
+
+        mockMvc.perform(post("/anuncios/{id}/excluir", anuncioId))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+
+        assertThat(Files.exists(arquivo)).isFalse();
     }
 
     private Long cadastrarAnuncio(

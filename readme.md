@@ -109,6 +109,7 @@ classDiagram
 - Visualização dos detalhes dos anúncios
 - Busca e filtros por texto, tipo, categoria e local
 - Edição de anúncios
+- Exclusão de anúncios
 - Marcação de anúncios como resolvidos
 - Histórico/listagem de anúncios resolvidos
 - Testes automatizados de fluxo para cadastro, edição, resolução, detalhes e histórico
@@ -120,7 +121,6 @@ classDiagram
 ## Funcionalidades Planejadas
 
 - Login de usuários
-- Exclusão de anúncios
 
 ## Ferramentas Planejadas
 

@@ -132,11 +132,15 @@ public class AnuncioService {
         Categoria categoria = categoriaRepository.findById(form.getCategoriaId())
                 .orElseThrow(() -> new IllegalArgumentException("Categoria nao encontrada."));
 
+        String imagemAnterior = anuncio.getImagem();
+        Optional<String> novaImagem = imagemStorageService.salvar(form.getImagemArquivo());
+
         preencherDadosEditaveis(anuncio, form, categoria);
-        if (form.isRemoverImagem()) {
+        if (form.isRemoverImagem() || novaImagem.isPresent()) {
+            imagemStorageService.remover(imagemAnterior);
             anuncio.setImagem(null);
         }
-        imagemStorageService.salvar(form.getImagemArquivo()).ifPresent(anuncio::setImagem);
+        novaImagem.ifPresent(anuncio::setImagem);
 
         return anuncio;
     }
@@ -152,6 +156,20 @@ public class AnuncioService {
                 .orElseThrow(() -> new IllegalArgumentException("Anuncio nao encontrado."));
 
         anuncio.setStatus(StatusAnuncio.RESOLVIDO);
+    }
+
+    /**
+     * Exclui um anuncio existente.
+     *
+     * @param id identificador do anuncio
+     */
+    @Transactional
+    public void excluir(Long id) {
+        Anuncio anuncio = anuncioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Anuncio nao encontrado."));
+
+        imagemStorageService.remover(anuncio.getImagem());
+        anuncioRepository.delete(anuncio);
     }
 
     private AnuncioFormDto criarFormulario(Anuncio anuncio) {

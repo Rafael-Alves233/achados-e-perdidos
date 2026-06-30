@@ -118,6 +118,15 @@ body {
     background: var(--primary-dark);
 }
 
+.button-danger {
+    border-color: #b42318;
+    background: #b42318;
+}
+
+.button-danger:hover {
+    background: #8f1d14;
+}
+
 .link-button {
     border: 1px solid var(--line);
     background: var(--surface);
