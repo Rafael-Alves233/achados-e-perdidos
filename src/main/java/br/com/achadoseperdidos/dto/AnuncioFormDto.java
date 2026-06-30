@@ -4,6 +4,7 @@ import br.com.achadoseperdidos.model.TipoAnuncio;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * DTO utilizado para receber os dados do formulario de cadastro de anuncios.
@@ -27,6 +28,12 @@ public class AnuncioFormDto {
     @NotBlank(message = "Informe o local relacionado ao anuncio.")
     @Size(max = 120, message = "O local deve ter no maximo 120 caracteres.")
     private String local;
+
+    private MultipartFile imagemArquivo;
+
+    private String imagemAtual;
+
+    private boolean removerImagem;
 
     public String getTitulo() {
         return titulo;
@@ -66,5 +73,29 @@ public class AnuncioFormDto {
 
     public void setLocal(String local) {
         this.local = local;
+    }
+
+    public MultipartFile getImagemArquivo() {
+        return imagemArquivo;
+    }
+
+    public void setImagemArquivo(MultipartFile imagemArquivo) {
+        this.imagemArquivo = imagemArquivo;
+    }
+
+    public String getImagemAtual() {
+        return imagemAtual;
+    }
+
+    public void setImagemAtual(String imagemAtual) {
+        this.imagemAtual = imagemAtual;
+    }
+
+    public boolean isRemoverImagem() {
+        return removerImagem;
+    }
+
+    public void setRemoverImagem(boolean removerImagem) {
+        this.removerImagem = removerImagem;
     }
 }

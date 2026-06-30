@@ -39,7 +39,7 @@ public class DataInitializer {
             Usuario usuario = usuarioService.obterOuCriarUsuarioPadrao();
             Categoria documentos = categoriaPadrao("Documentos", categoriaRepository);
             Categoria eletronicos = categoriaPadrao("Eletronicos", categoriaRepository);
-            Categoria outros = categoriaPadrao("Outros", categoriaRepository);
+            categoriaPadrao("Outros", categoriaRepository);
 
             if (anuncioRepository.count() > 0) {
                 return;
@@ -52,6 +52,7 @@ public class DataInitializer {
             cracha.setCategoria(documentos);
             cracha.setLocal("Biblioteca central");
             cracha.setData(LocalDate.now().minusDays(1));
+            cracha.setImagem("/images/demo-cracha.png");
             cracha.setUsuario(usuario);
             anuncioRepository.save(cracha);
 
@@ -62,6 +63,7 @@ public class DataInitializer {
             fone.setCategoria(eletronicos);
             fone.setLocal("CT-13");
             fone.setData(LocalDate.now());
+            fone.setImagem("/images/demo-fone.png");
             fone.setUsuario(usuario);
             anuncioRepository.save(fone);
 

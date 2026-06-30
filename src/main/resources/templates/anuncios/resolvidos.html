@@ -37,6 +37,10 @@
 
         <section class="anuncios-grid" th:if="${!#lists.isEmpty(anuncios)}">
             <article class="anuncio-card" th:each="anuncio : ${anuncios}">
+                <div class="anuncio-image" th:if="${anuncio.imagem != null and !#strings.isEmpty(anuncio.imagem)}">
+                    <img th:src="@{${anuncio.imagem}}" th:alt="${'Imagem do anuncio ' + anuncio.titulo}">
+                </div>
+
                 <div class="card-header">
                     <span class="badge" th:text="${anuncio.tipoAnuncio}">PERDIDO</span>
                     <span class="counter" th:text="${anuncio.status}">RESOLVIDO</span>

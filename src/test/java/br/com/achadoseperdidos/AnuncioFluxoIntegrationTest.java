@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
@@ -20,8 +21,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
 
-@SpringBootTest
+@SpringBootTest(properties = "app.upload-dir=target/test-uploads")
 @AutoConfigureMockMvc
 class AnuncioFluxoIntegrationTest {
 
@@ -73,6 +75,36 @@ class AnuncioFluxoIntegrationTest {
     }
 
     @Test
+    void deveCadastrarAnuncioComImagem() throws Exception {
+        MockMultipartFile imagem = imagemTeste("cracha.png", "image/png");
+
+        mockMvc.perform(multipart("/anuncios")
+                .file(imagem)
+                .param("titulo", "Cracha com foto")
+                .param("descricao", "Cracha encontrado com foto anexada.")
+                .param("tipoAnuncio", "ENCONTRADO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Biblioteca"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attribute("mensagem", "Anuncio cadastrado com sucesso."));
+
+        Long anuncioId = jdbcTemplate.queryForObject(
+                "select id from anuncios where titulo = ?",
+                Long.class,
+                "Cracha com foto");
+        Map<String, Object> anuncio = buscarAnuncio(anuncioId);
+
+        assertThat((String) anuncio.get("imagem"))
+                .startsWith("/uploads/")
+                .endsWith(".png");
+
+        mockMvc.perform(get("/anuncios/{id}", anuncioId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("/uploads/")));
+    }
+
+    @Test
     void deveEditarAnuncioExistente() throws Exception {
         Long anuncioId = cadastrarAnuncio(
                 "Fone perdido",
@@ -106,6 +138,59 @@ class AnuncioFluxoIntegrationTest {
                 .containsEntry("local", "Biblioteca")
                 .containsEntry("status", "ATIVO");
         assertThat(anuncio.get("categoria_id")).isEqualTo(documentosId);
+    }
+
+    @Test
+    void deveAtualizarImagemDoAnuncio() throws Exception {
+        Long anuncioId = cadastrarAnuncio(
+                "Chave encontrada",
+                "Chave encontrada no estacionamento.",
+                "ENCONTRADO",
+                documentosId,
+                "Estacionamento");
+
+        MockMultipartFile imagem = imagemTeste("chave.webp", "image/webp");
+
+        mockMvc.perform(multipart("/anuncios/{id}/editar", anuncioId)
+                .file(imagem)
+                .param("titulo", "Chave encontrada")
+                .param("descricao", "Chave encontrada no estacionamento.")
+                .param("tipoAnuncio", "ENCONTRADO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Estacionamento"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/anuncios/" + anuncioId))
+                .andExpect(flash().attribute("mensagem", "Anuncio atualizado com sucesso."));
+
+        assertThat((String) buscarAnuncio(anuncioId).get("imagem"))
+                .startsWith("/uploads/")
+                .endsWith(".webp");
+    }
+
+    @Test
+    void deveRemoverImagemDoAnuncioNaEdicao() throws Exception {
+        Long anuncioId = cadastrarAnuncio(
+                "Mochila encontrada",
+                "Mochila azul encontrada no corredor.",
+                "ENCONTRADO",
+                documentosId,
+                "Corredor");
+
+        jdbcTemplate.update("update anuncios set imagem = ? where id = ?", "/uploads/mochila.png", anuncioId);
+
+        mockMvc.perform(post("/anuncios/{id}/editar", anuncioId)
+                .param("titulo", "Mochila encontrada")
+                .param("descricao", "Mochila azul encontrada no corredor.")
+                .param("tipoAnuncio", "ENCONTRADO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Corredor")
+                .param("imagemAtual", "/uploads/mochila.png")
+                .param("removerImagem", "true"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/anuncios/" + anuncioId))
+                .andExpect(flash().attribute("mensagem", "Anuncio atualizado com sucesso."));
+
+        assertThat(buscarAnuncio(anuncioId).get("imagem")).isNull();
     }
 
     @Test
@@ -167,5 +252,13 @@ class AnuncioFluxoIntegrationTest {
 
     private Map<String, Object> buscarAnuncio(Long id) {
         return jdbcTemplate.queryForMap("select * from anuncios where id = ?", id);
+    }
+
+    private MockMultipartFile imagemTeste(String nomeArquivo, String contentType) {
+        return new MockMultipartFile(
+                "imagemArquivo",
+                nomeArquivo,
+                contentType,
+                new byte[] { 1, 2, 3, 4 });
     }
 }

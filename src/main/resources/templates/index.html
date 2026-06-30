@@ -74,6 +74,10 @@
 
         <section class="anuncios-grid" th:if="${!#lists.isEmpty(anuncios)}">
             <article class="anuncio-card" th:each="anuncio : ${anuncios}">
+                <div class="anuncio-image" th:if="${anuncio.imagem != null and !#strings.isEmpty(anuncio.imagem)}">
+                    <img th:src="@{${anuncio.imagem}}" th:alt="${'Imagem do anuncio ' + anuncio.titulo}">
+                </div>
+
                 <div class="card-header">
                     <span class="badge" th:text="${anuncio.tipoAnuncio}">PERDIDO</span>
                     <span class="date" th:text="${#temporals.format(anuncio.data, 'dd/MM/yyyy')}">18/06/2026</span>

@@ -25,14 +25,17 @@ public class AnuncioService {
     private final AnuncioRepository anuncioRepository;
     private final CategoriaRepository categoriaRepository;
     private final UsuarioService usuarioService;
+    private final ImagemStorageService imagemStorageService;
 
     public AnuncioService(
             AnuncioRepository anuncioRepository,
             CategoriaRepository categoriaRepository,
-            UsuarioService usuarioService) {
+            UsuarioService usuarioService,
+            ImagemStorageService imagemStorageService) {
         this.anuncioRepository = anuncioRepository;
         this.categoriaRepository = categoriaRepository;
         this.usuarioService = usuarioService;
+        this.imagemStorageService = imagemStorageService;
     }
 
     /**
@@ -107,6 +110,7 @@ public class AnuncioService {
 
         Anuncio anuncio = new Anuncio();
         preencherDadosEditaveis(anuncio, form, categoria);
+        imagemStorageService.salvar(form.getImagemArquivo()).ifPresent(anuncio::setImagem);
         anuncio.setData(LocalDate.now());
         anuncio.setStatus(StatusAnuncio.ATIVO);
         anuncio.setUsuario(usuario);
@@ -129,6 +133,10 @@ public class AnuncioService {
                 .orElseThrow(() -> new IllegalArgumentException("Categoria nao encontrada."));
 
         preencherDadosEditaveis(anuncio, form, categoria);
+        if (form.isRemoverImagem()) {
+            anuncio.setImagem(null);
+        }
+        imagemStorageService.salvar(form.getImagemArquivo()).ifPresent(anuncio::setImagem);
 
         return anuncio;
     }
@@ -153,6 +161,7 @@ public class AnuncioService {
         form.setTipoAnuncio(anuncio.getTipoAnuncio());
         form.setCategoriaId(anuncio.getCategoria().getId());
         form.setLocal(anuncio.getLocal());
+        form.setImagemAtual(anuncio.getImagem());
         return form;
     }
 

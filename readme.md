@@ -112,6 +112,7 @@ classDiagram
 - Marcação de anúncios como resolvidos
 - Histórico/listagem de anúncios resolvidos
 - Testes automatizados de fluxo para cadastro, edição, resolução, detalhes e histórico
+- Upload de imagem nos anúncios
 - Entidades principais do domínio
 - Banco H2 em memória
 - Página inicial com Thymeleaf
@@ -120,7 +121,6 @@ classDiagram
 
 - Login de usuários
 - Exclusão de anúncios
-- Upload de imagem
 
 ## Ferramentas Planejadas
 

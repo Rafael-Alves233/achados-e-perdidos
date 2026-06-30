@@ -130,7 +130,7 @@ public class AnuncioController {
         try {
             anuncioService.salvar(anuncioFormDto);
         } catch (IllegalArgumentException exception) {
-            bindingResult.rejectValue("categoriaId", "categoria.invalida", exception.getMessage());
+            rejeitarErroDeFormulario(bindingResult, exception);
             carregarDadosFormularioCadastro(model);
             return "anuncios/form";
         }
@@ -164,8 +164,8 @@ public class AnuncioController {
         try {
             anuncioService.atualizar(id, anuncioFormDto);
         } catch (IllegalArgumentException exception) {
-            if ("Categoria nao encontrada.".equals(exception.getMessage())) {
-                bindingResult.rejectValue("categoriaId", "categoria.invalida", exception.getMessage());
+            if (erroDeFormulario(exception)) {
+                rejeitarErroDeFormulario(bindingResult, exception);
                 carregarDadosFormularioEdicao(model, id);
                 return "anuncios/form";
             }
@@ -221,6 +221,22 @@ public class AnuncioController {
     private void carregarOpcoesFormulario(Model model) {
         model.addAttribute("tiposAnuncio", TipoAnuncio.values());
         model.addAttribute("categorias", anuncioService.listarCategorias());
+    }
+
+    private boolean erroDeFormulario(IllegalArgumentException exception) {
+        return "Categoria nao encontrada.".equals(exception.getMessage())
+                || exception.getMessage().contains("imagem")
+                || exception.getMessage().contains("arquivo")
+                || exception.getMessage().contains("JPG");
+    }
+
+    private void rejeitarErroDeFormulario(BindingResult bindingResult, IllegalArgumentException exception) {
+        if ("Categoria nao encontrada.".equals(exception.getMessage())) {
+            bindingResult.rejectValue("categoriaId", "categoria.invalida", exception.getMessage());
+            return;
+        }
+
+        bindingResult.rejectValue("imagemArquivo", "imagem.invalida", exception.getMessage());
     }
 
     private String exibirDetalhes(Anuncio anuncio, Model model) {

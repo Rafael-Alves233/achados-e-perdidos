@@ -30,7 +30,9 @@
 
             <form class="form-card"
                 th:action="${modoEdicao} ? @{/anuncios/{id}/editar(id=${anuncioId})} : @{/anuncios}"
-                th:object="${anuncioFormDto}" method="post">
+                th:object="${anuncioFormDto}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{imagemAtual}">
+
                 <div class="form-field">
                     <label for="titulo">Titulo</label>
                     <input id="titulo" type="text" th:field="*{titulo}" maxlength="120" required>
@@ -66,6 +68,25 @@
                     <label for="descricao">Descricao</label>
                     <textarea id="descricao" rows="5" th:field="*{descricao}" maxlength="1000" required></textarea>
                     <p class="field-error" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">Erro</p>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="imagemArquivo">Imagem do objeto</label>
+                    <input id="imagemArquivo" type="file" th:field="*{imagemArquivo}"
+                        accept="image/png,image/jpeg,image/gif,image/webp">
+                    <p class="field-hint">Formatos aceitos: JPG, PNG, GIF ou WEBP. Campo opcional.</p>
+                    <p class="field-error" th:if="${#fields.hasErrors('imagemArquivo')}"
+                        th:errors="*{imagemArquivo}">Erro</p>
+                </div>
+
+                <div class="current-image form-field-full"
+                    th:if="${anuncioFormDto.imagemAtual != null and !#strings.isEmpty(anuncioFormDto.imagemAtual)}">
+                    <span>Imagem atual</span>
+                    <img th:src="@{${anuncioFormDto.imagemAtual}}" alt="Imagem atual do anuncio">
+                    <label class="checkbox-field" for="removerImagem">
+                        <input id="removerImagem" type="checkbox" th:field="*{removerImagem}">
+                        <span>Remover imagem atual</span>
+                    </label>
                 </div>
 
                 <div class="form-actions">
