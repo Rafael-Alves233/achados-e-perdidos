@@ -111,6 +111,7 @@ classDiagram
 - Edição de anúncios
 - Marcação de anúncios como resolvidos
 - Histórico/listagem de anúncios resolvidos
+- Testes automatizados de fluxo para cadastro, edição, resolução, detalhes e histórico
 - Entidades principais do domínio
 - Banco H2 em memória
 - Página inicial com Thymeleaf
