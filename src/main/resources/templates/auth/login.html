@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar topbar-compact">
+        <div class="container">
+            <p class="eyebrow">Universidade Federal do Espirito Santo</p>
+            <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
+            <h1>Entrar</h1>
+            <p class="subtitle">Acesse sua conta para publicar e gerenciar anuncios.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section auth-section">
+            <p class="flash-message" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+            <p class="flash-message flash-message-error" th:if="${param.error}">E-mail ou senha invalidos.</p>
+            <p class="flash-message" th:if="${param.logout}">Voce saiu da sua conta.</p>
+
+            <form class="form-card auth-card" th:action="@{/login}" method="post">
+                <div class="form-field form-field-full">
+                    <label for="username">E-mail</label>
+                    <input id="username" name="username" type="email" autocomplete="email" required>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="password">Senha</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required>
+                </div>
+
+                <div class="form-actions">
+                    <a class="link-button" th:href="@{/cadastro}">Criar conta</a>
+                    <button class="button" type="submit">Entrar</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>

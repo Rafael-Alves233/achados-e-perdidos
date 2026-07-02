@@ -11,6 +11,14 @@
 <body>
     <header class="topbar topbar-compact">
         <div class="container">
+            <div class="auth-bar">
+                <span th:if="${autenticado}" th:text="${usuarioLogado.nome}">Usuario</span>
+                <form th:if="${autenticado}" th:action="@{/logout}" method="post">
+                    <button class="auth-link" type="submit">Sair</button>
+                </form>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/login}">Entrar</a>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/cadastro}">Criar conta</a>
+            </div>
             <p class="eyebrow">Universidade Federal do Espirito Santo</p>
             <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
             <h1>Anuncios resolvidos</h1>

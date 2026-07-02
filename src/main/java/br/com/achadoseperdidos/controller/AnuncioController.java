@@ -74,16 +74,21 @@ public class AnuncioController {
             return "anuncios/form";
         }
 
-        return anuncioService.buscarFormularioEdicao(id)
-                .map(form -> {
-                    model.addAttribute("anuncioFormDto", form);
-                    carregarDadosFormularioEdicao(model, id);
-                    return "anuncios/form";
-                })
-                .orElseGet(() -> {
-                    redirectAttributes.addFlashAttribute("mensagemErro", "Anuncio nao encontrado.");
-                    return "redirect:/";
-                });
+        try {
+            return anuncioService.buscarFormularioEdicao(id)
+                    .map(form -> {
+                        model.addAttribute("anuncioFormDto", form);
+                        carregarDadosFormularioEdicao(model, id);
+                        return "anuncios/form";
+                    })
+                    .orElseGet(() -> {
+                        redirectAttributes.addFlashAttribute("mensagemErro", "Anuncio nao encontrado.");
+                        return "redirect:/";
+                    });
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("mensagemErro", exception.getMessage());
+            return "redirect:/";
+        }
     }
 
     /**
@@ -262,6 +267,7 @@ public class AnuncioController {
 
     private String exibirDetalhes(Anuncio anuncio, Model model) {
         model.addAttribute("anuncio", anuncio);
+        model.addAttribute("podeGerenciar", anuncioService.podeGerenciar(anuncio));
         return "anuncios/detalhes";
     }
 }

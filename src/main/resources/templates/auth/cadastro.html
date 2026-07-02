@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar topbar-compact">
+        <div class="container">
+            <p class="eyebrow">Universidade Federal do Espirito Santo</p>
+            <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
+            <h1>Criar conta</h1>
+            <p class="subtitle">Cadastre-se para publicar e acompanhar seus anuncios.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section auth-section">
+            <form class="form-card auth-card" th:action="@{/cadastro}" th:object="${usuarioCadastroDto}" method="post">
+                <div class="form-field form-field-full">
+                    <label for="nome">Nome</label>
+                    <input id="nome" type="text" th:field="*{nome}" maxlength="120" autocomplete="name" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Erro</p>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="email">E-mail</label>
+                    <input id="email" type="email" th:field="*{email}" maxlength="160" autocomplete="email" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Erro</p>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="senha">Senha</label>
+                    <input id="senha" type="password" th:field="*{senha}" minlength="6" maxlength="72"
+                        autocomplete="new-password" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}">Erro</p>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label for="confirmacaoSenha">Confirmar senha</label>
+                    <input id="confirmacaoSenha" type="password" th:field="*{confirmacaoSenha}" minlength="6"
+                        maxlength="72" autocomplete="new-password" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('confirmacaoSenha')}"
+                        th:errors="*{confirmacaoSenha}">Erro</p>
+                </div>
+
+                <div class="form-actions">
+                    <a class="link-button" th:href="@{/login}">Ja tenho conta</a>
+                    <button class="button" type="submit">Criar conta</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>

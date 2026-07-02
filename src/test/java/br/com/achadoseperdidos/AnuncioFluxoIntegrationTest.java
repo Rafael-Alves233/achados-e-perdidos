@@ -3,6 +3,10 @@ package br.com.achadoseperdidos;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,14 +27,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @SpringBootTest(properties = "app.upload-dir=target/test-uploads")
 @AutoConfigureMockMvc
 class AnuncioFluxoIntegrationTest {
 
     private static final Path TEST_UPLOAD_DIR = Paths.get("target/test-uploads");
+    private static final String EMAIL_USUARIO_PADRAO = "secretaria@faculdade.edu";
 
     private final MockMvc mockMvc;
     private final JdbcTemplate jdbcTemplate;
@@ -52,6 +58,7 @@ class AnuncioFluxoIntegrationTest {
 
         documentosId = inserirCategoria("Documentos");
         eletronicosId = inserirCategoria("Eletronicos");
+        inserirUsuarioPadrao();
     }
 
     @Test
@@ -85,6 +92,8 @@ class AnuncioFluxoIntegrationTest {
 
         mockMvc.perform(multipart("/anuncios")
                 .file(imagem)
+                .with(csrf())
+                .with(usuarioPadrao())
                 .param("titulo", "Cracha com foto")
                 .param("descricao", "Cracha encontrado com foto anexada.")
                 .param("tipoAnuncio", "ENCONTRADO")
@@ -118,13 +127,16 @@ class AnuncioFluxoIntegrationTest {
                 eletronicosId,
                 "CT-13");
 
-        mockMvc.perform(get("/anuncios/{id}/editar", anuncioId))
+        mockMvc.perform(get("/anuncios/{id}/editar", anuncioId)
+                .with(usuarioPadrao()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("anuncios/form"))
                 .andExpect(content().string(containsString("Editar anuncio")))
                 .andExpect(content().string(containsString("Fone perdido")));
 
         mockMvc.perform(post("/anuncios/{id}/editar", anuncioId)
+                .with(csrf())
+                .with(usuarioPadrao())
                 .param("titulo", "Fone encontrado")
                 .param("descricao", "Fone Bluetooth preto localizado.")
                 .param("tipoAnuncio", "ENCONTRADO")
@@ -158,6 +170,8 @@ class AnuncioFluxoIntegrationTest {
 
         mockMvc.perform(multipart("/anuncios/{id}/editar", anuncioId)
                 .file(imagem)
+                .with(csrf())
+                .with(usuarioPadrao())
                 .param("titulo", "Chave encontrada")
                 .param("descricao", "Chave encontrada no estacionamento.")
                 .param("tipoAnuncio", "ENCONTRADO")
@@ -184,6 +198,8 @@ class AnuncioFluxoIntegrationTest {
         jdbcTemplate.update("update anuncios set imagem = ? where id = ?", "/uploads/mochila.png", anuncioId);
 
         mockMvc.perform(post("/anuncios/{id}/editar", anuncioId)
+                .with(csrf())
+                .with(usuarioPadrao())
                 .param("titulo", "Mochila encontrada")
                 .param("descricao", "Mochila azul encontrada no corredor.")
                 .param("tipoAnuncio", "ENCONTRADO")
@@ -207,7 +223,9 @@ class AnuncioFluxoIntegrationTest {
                 documentosId,
                 "RU");
 
-        mockMvc.perform(post("/anuncios/{id}/resolver", anuncioId))
+        mockMvc.perform(post("/anuncios/{id}/resolver", anuncioId)
+                .with(csrf())
+                .with(usuarioPadrao()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attribute("mensagem", "Anuncio marcado como resolvido."));
@@ -234,7 +252,9 @@ class AnuncioFluxoIntegrationTest {
                 documentosId,
                 "Entrada");
 
-        mockMvc.perform(post("/anuncios/{id}/excluir", anuncioId))
+        mockMvc.perform(post("/anuncios/{id}/excluir", anuncioId)
+                .with(csrf())
+                .with(usuarioPadrao()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attribute("mensagem", "Anuncio excluido com sucesso."));
@@ -252,10 +272,36 @@ class AnuncioFluxoIntegrationTest {
 
     @Test
     void deveInformarErroAoExcluirAnuncioInexistente() throws Exception {
-        mockMvc.perform(post("/anuncios/{id}/excluir", 9999L))
+        mockMvc.perform(post("/anuncios/{id}/excluir", 9999L)
+                .with(csrf())
+                .with(usuarioPadrao()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
                 .andExpect(flash().attribute("mensagemErro", "Anuncio nao encontrado."));
+    }
+
+    @Test
+    void deveBloquearExclusaoPorUsuarioSemPermissao() throws Exception {
+        Long anuncioId = cadastrarAnuncio(
+                "Notebook perdido",
+                "Notebook prata perdido no laboratorio.",
+                "PERDIDO",
+                eletronicosId,
+                "Laboratorio");
+        inserirUsuario("Outro Usuario", "outro@ufes.br", "USUARIO");
+
+        mockMvc.perform(post("/anuncios/{id}/excluir", anuncioId)
+                .with(csrf())
+                .with(user("outro@ufes.br").roles("USUARIO")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attribute("mensagemErro", "Voce nao tem permissao para gerenciar este anuncio."));
+
+        Long total = jdbcTemplate.queryForObject(
+                "select count(*) from anuncios where id = ?",
+                Long.class,
+                anuncioId);
+        assertThat(total).isEqualTo(1L);
     }
 
     @Test
@@ -264,6 +310,8 @@ class AnuncioFluxoIntegrationTest {
 
         mockMvc.perform(multipart("/anuncios")
                 .file(imagem)
+                .with(csrf())
+                .with(usuarioPadrao())
                 .param("titulo", "Relogio encontrado")
                 .param("descricao", "Relogio encontrado no laboratorio.")
                 .param("tipoAnuncio", "ENCONTRADO")
@@ -280,11 +328,53 @@ class AnuncioFluxoIntegrationTest {
 
         assertThat(Files.exists(arquivo)).isTrue();
 
-        mockMvc.perform(post("/anuncios/{id}/excluir", anuncioId))
+        mockMvc.perform(post("/anuncios/{id}/excluir", anuncioId)
+                .with(csrf())
+                .with(usuarioPadrao()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
 
         assertThat(Files.exists(arquivo)).isFalse();
+    }
+
+    @Test
+    void deveCadastrarUsuarioComSenhaCriptografadaEPermitirLogin() throws Exception {
+        mockMvc.perform(post("/cadastro")
+                .with(csrf())
+                .param("nome", "Aluno Teste")
+                .param("email", "aluno@ufes.br")
+                .param("senha", "123456")
+                .param("confirmacaoSenha", "123456"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"))
+                .andExpect(flash().attribute("mensagem", "Usuario cadastrado com sucesso. Faca login para continuar."));
+
+        String senhaSalva = jdbcTemplate.queryForObject(
+                "select senha from usuarios where email = ?",
+                String.class,
+                "aluno@ufes.br");
+
+        assertThat(senhaSalva)
+                .isNotEqualTo("123456")
+                .startsWith("$2");
+
+        mockMvc.perform(formLogin("/login")
+                .user("username", "aluno@ufes.br")
+                .password("password", "123456"))
+                .andExpect(authenticated().withUsername("aluno@ufes.br"));
+    }
+
+    @Test
+    void deveRedirecionarParaLoginAoTentarCadastrarAnuncioSemAutenticacao() throws Exception {
+        mockMvc.perform(post("/anuncios")
+                .with(csrf())
+                .param("titulo", "Objeto sem login")
+                .param("descricao", "Tentativa sem usuario autenticado.")
+                .param("tipoAnuncio", "PERDIDO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Biblioteca"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("http://localhost/login"));
     }
 
     private Long cadastrarAnuncio(
@@ -294,6 +384,8 @@ class AnuncioFluxoIntegrationTest {
             Long categoriaId,
             String local) throws Exception {
         mockMvc.perform(post("/anuncios")
+                .with(csrf())
+                .with(usuarioPadrao())
                 .param("titulo", titulo)
                 .param("descricao", descricao)
                 .param("tipoAnuncio", tipoAnuncio)
@@ -317,8 +409,25 @@ class AnuncioFluxoIntegrationTest {
                 nome);
     }
 
+    private void inserirUsuarioPadrao() {
+        inserirUsuario("Secretaria Academica", EMAIL_USUARIO_PADRAO, "ADMIN");
+    }
+
+    private void inserirUsuario(String nome, String email, String tipoUsuario) {
+        jdbcTemplate.update(
+                "insert into usuarios (nome, email, senha, tipo_usuario) values (?, ?, ?, ?)",
+                nome,
+                email,
+                "$2a$10$vlb6wG7fGp0WAqMK/e6fuO3oaV3LbCQjRYVlK9B3qu1VK0YGvvCia",
+                tipoUsuario);
+    }
+
     private Map<String, Object> buscarAnuncio(Long id) {
         return jdbcTemplate.queryForMap("select * from anuncios where id = ?", id);
+    }
+
+    private RequestPostProcessor usuarioPadrao() {
+        return user(EMAIL_USUARIO_PADRAO).roles("ADMIN");
     }
 
     private MockMultipartFile imagemTeste(String nomeArquivo, String contentType) {

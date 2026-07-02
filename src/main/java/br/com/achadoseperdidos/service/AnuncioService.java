@@ -12,6 +12,7 @@ import br.com.achadoseperdidos.dto.AnuncioFormDto;
 import br.com.achadoseperdidos.model.Anuncio;
 import br.com.achadoseperdidos.model.Categoria;
 import br.com.achadoseperdidos.model.StatusAnuncio;
+import br.com.achadoseperdidos.model.TipoUsuario;
 import br.com.achadoseperdidos.model.Usuario;
 import br.com.achadoseperdidos.repository.AnuncioRepository;
 import br.com.achadoseperdidos.repository.CategoriaRepository;
@@ -83,7 +84,11 @@ public class AnuncioService {
      */
     @Transactional(readOnly = true)
     public Optional<AnuncioFormDto> buscarFormularioEdicao(Long id) {
-        return buscarPorId(id).map(this::criarFormulario);
+        return buscarPorId(id)
+                .map(anuncio -> {
+                    validarPermissaoGerenciamento(anuncio);
+                    return criarFormulario(anuncio);
+                });
     }
 
     /**
@@ -106,7 +111,7 @@ public class AnuncioService {
     public Anuncio salvar(AnuncioFormDto form) {
         Categoria categoria = categoriaRepository.findById(form.getCategoriaId())
                 .orElseThrow(() -> new IllegalArgumentException("Categoria nao encontrada."));
-        Usuario usuario = usuarioService.obterOuCriarUsuarioPadrao();
+        Usuario usuario = usuarioService.obterUsuarioAutenticado();
 
         Anuncio anuncio = new Anuncio();
         preencherDadosEditaveis(anuncio, form, categoria);
@@ -132,6 +137,8 @@ public class AnuncioService {
         Categoria categoria = categoriaRepository.findById(form.getCategoriaId())
                 .orElseThrow(() -> new IllegalArgumentException("Categoria nao encontrada."));
 
+        validarPermissaoGerenciamento(anuncio);
+
         String imagemAnterior = anuncio.getImagem();
         Optional<String> novaImagem = imagemStorageService.salvar(form.getImagemArquivo());
 
@@ -155,6 +162,7 @@ public class AnuncioService {
         Anuncio anuncio = anuncioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Anuncio nao encontrado."));
 
+        validarPermissaoGerenciamento(anuncio);
         anuncio.setStatus(StatusAnuncio.RESOLVIDO);
     }
 
@@ -168,8 +176,22 @@ public class AnuncioService {
         Anuncio anuncio = anuncioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Anuncio nao encontrado."));
 
+        validarPermissaoGerenciamento(anuncio);
         imagemStorageService.remover(anuncio.getImagem());
         anuncioRepository.delete(anuncio);
+    }
+
+    /**
+     * Verifica se o usuario atual pode gerenciar o anuncio.
+     *
+     * @param anuncio anuncio avaliado
+     * @return verdadeiro quando o usuario e dono do anuncio ou administrador
+     */
+    @Transactional(readOnly = true)
+    public boolean podeGerenciar(Anuncio anuncio) {
+        return usuarioService.buscarUsuarioAutenticado()
+                .map(usuario -> podeGerenciar(anuncio, usuario))
+                .orElse(false);
     }
 
     private AnuncioFormDto criarFormulario(Anuncio anuncio) {
@@ -189,6 +211,18 @@ public class AnuncioService {
         anuncio.setTipoAnuncio(form.getTipoAnuncio());
         anuncio.setCategoria(categoria);
         anuncio.setLocal(form.getLocal().trim());
+    }
+
+    private void validarPermissaoGerenciamento(Anuncio anuncio) {
+        Usuario usuario = usuarioService.obterUsuarioAutenticado();
+        if (!podeGerenciar(anuncio, usuario)) {
+            throw new IllegalArgumentException("Voce nao tem permissao para gerenciar este anuncio.");
+        }
+    }
+
+    private boolean podeGerenciar(Anuncio anuncio, Usuario usuario) {
+        return usuario.getTipoUsuario() == TipoUsuario.ADMIN
+                || anuncio.getUsuario().getId().equals(usuario.getId());
     }
 
     private String normalizarTexto(String valor) {

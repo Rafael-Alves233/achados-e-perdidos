@@ -94,6 +94,7 @@ classDiagram
 
 ## Frameworks Reutilizados
 
+- **Spring Security**: autenticacao, autorizacao, login/logout e protecao CSRF.
 - **Spring Boot**: base da aplicação.
 - **Spring Web**: criação dos controllers e rotas web.
 - **Spring Data JPA**: persistência de dados.
@@ -104,6 +105,7 @@ classDiagram
 
 ## Funcionalidades Implementadas
 
+- Cadastro, login e logout de usuarios
 - Listagem inicial de anúncios ativos
 - Cadastro inicial de anúncios via formulário
 - Visualização dos detalhes dos anúncios
@@ -112,15 +114,21 @@ classDiagram
 - Exclusão de anúncios
 - Marcação de anúncios como resolvidos
 - Histórico/listagem de anúncios resolvidos
-- Testes automatizados de fluxo para cadastro, edição, resolução, detalhes e histórico
+- Permissao para editar, resolver e excluir apenas anuncios do proprio usuario ou por administrador
+- Testes automatizados de fluxo para cadastro, edicao, exclusao, resolucao, detalhes, historico, upload e autenticacao
 - Upload de imagem nos anúncios
 - Entidades principais do domínio
 - Banco H2 em memória
 - Página inicial com Thymeleaf
 
+## Acesso de Demonstracao
+
+- **Administrador:** secretaria@faculdade.edu
+- **Senha:** 123456
+
 ## Funcionalidades Planejadas
 
-- Login de usuários
+- Melhorias na validacao de formularios e mensagens de erro
 
 ## Ferramentas Planejadas
 

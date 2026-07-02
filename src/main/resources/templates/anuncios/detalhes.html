@@ -11,6 +11,14 @@
 <body>
     <header class="topbar topbar-compact">
         <div class="container">
+            <div class="auth-bar">
+                <span th:if="${autenticado}" th:text="${usuarioLogado.nome}">Usuario</span>
+                <form th:if="${autenticado}" th:action="@{/logout}" method="post">
+                    <button class="auth-link" type="submit">Sair</button>
+                </form>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/login}">Entrar</a>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/cadastro}">Criar conta</a>
+            </div>
             <p class="eyebrow">Universidade Federal do Espirito Santo</p>
             <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
             <h1 th:text="${anuncio.titulo}">Titulo do anuncio</h1>
@@ -61,7 +69,7 @@
                 </div>
             </dl>
 
-            <div class="detail-actions">
+            <div class="detail-actions" th:if="${podeGerenciar}">
                 <a class="link-button" th:href="@{/anuncios/{id}/editar(id=${anuncio.id})}">Editar</a>
                 <form th:if="${anuncio.status.name() == 'ATIVO'}"
                     th:action="@{/anuncios/{id}/resolver(id=${anuncio.id})}" method="post">
@@ -71,6 +79,9 @@
                     onsubmit="return confirm('Deseja realmente excluir este anuncio?');">
                     <button class="button button-danger" type="submit">Excluir</button>
                 </form>
+            </div>
+            <div class="detail-actions" th:if="${!autenticado}">
+                <a class="link-button" th:href="@{/login}">Entrar para gerenciar</a>
             </div>
         </article>
     </main>

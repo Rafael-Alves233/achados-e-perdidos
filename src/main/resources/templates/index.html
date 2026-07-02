@@ -11,6 +11,14 @@
 <body>
     <header class="topbar">
         <div class="container">
+            <div class="auth-bar">
+                <span th:if="${autenticado}" th:text="${usuarioLogado.nome}">Usuario</span>
+                <form th:if="${autenticado}" th:action="@{/logout}" method="post">
+                    <button class="auth-link" type="submit">Sair</button>
+                </form>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/login}">Entrar</a>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/cadastro}">Criar conta</a>
+            </div>
             <p class="eyebrow">Universidade Federal do Espirito Santo</p>
             <h1>Achados e Perdidos</h1>
             <p class="subtitle">Encontre e divulgue objetos perdidos na UFES.</p>
