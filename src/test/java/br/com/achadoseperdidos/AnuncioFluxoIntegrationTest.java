@@ -61,6 +61,7 @@ class AnuncioFluxoIntegrationTest {
         inserirUsuarioPadrao();
     }
 
+    // Teste: cadastro de anuncio e exibicao dos detalhes.
     @Test
     void deveCadastrarEExibirDetalhesDoAnuncio() throws Exception {
         Long anuncioId = cadastrarAnuncio(
@@ -86,6 +87,7 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(content().string(containsString("Secretaria Academica")));
     }
 
+    // Teste: cadastro de anuncio com imagem valida.
     @Test
     void deveCadastrarAnuncioComImagem() throws Exception {
         MockMultipartFile imagem = imagemTeste("cracha.png", "image/png");
@@ -118,6 +120,69 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(content().string(containsString("/uploads/")));
     }
 
+    // Teste: rejeicao de upload com arquivo invalido.
+    @Test
+    void deveRejeitarUploadComTipoDeArquivoInvalido() throws Exception {
+        // Garante que a validacao de imagem barra arquivos que nao sao imagens permitidas.
+        MockMultipartFile arquivo = imagemTeste("documento.txt", "text/plain");
+
+        mockMvc.perform(multipart("/anuncios")
+                .file(arquivo)
+                .with(csrf())
+                .with(usuarioPadrao())
+                .param("titulo", "Arquivo invalido")
+                .param("descricao", "Tentativa de upload invalido.")
+                .param("tipoAnuncio", "ENCONTRADO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Biblioteca"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("anuncios/form"))
+                .andExpect(content().string(containsString("Envie uma imagem JPG, PNG, GIF ou WEBP.")));
+
+        Long total = jdbcTemplate.queryForObject(
+                "select count(*) from anuncios where titulo = ?",
+                Long.class,
+                "Arquivo invalido");
+        assertThat(total).isZero();
+    }
+
+    // Teste: filtros da pagina inicial.
+    @Test
+    void deveFiltrarAnunciosPorTextoTipoCategoriaELocal() throws Exception {
+        // Monta anuncios com combinacoes diferentes para validar todos os filtros da home.
+        cadastrarAnuncio(
+                "Cracha azul",
+                "Cracha encontrado no corredor.",
+                "ENCONTRADO",
+                documentosId,
+                "Biblioteca Central");
+        cadastrarAnuncio(
+                "Fone preto",
+                "Fone Bluetooth perdido perto do laboratorio.",
+                "PERDIDO",
+                eletronicosId,
+                "CT-13");
+        Long carteiraId = cadastrarAnuncio(
+                "Carteira marrom",
+                "Carteira encontrada no restaurante.",
+                "ENCONTRADO",
+                documentosId,
+                "RU");
+        // Anuncio resolvido nao deve aparecer na listagem principal de ativos.
+        jdbcTemplate.update("update anuncios set status = ? where id = ?", "RESOLVIDO", carteiraId);
+
+        mockMvc.perform(get("/")
+                .param("termo", "fone")
+                .param("tipoAnuncio", "PERDIDO")
+                .param("categoriaId", eletronicosId.toString())
+                .param("local", "CT"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Fone preto")))
+                .andExpect(content().string(not(containsString("Cracha azul"))))
+                .andExpect(content().string(not(containsString("Carteira marrom"))));
+    }
+
+    // Teste: edicao de anuncio existente.
     @Test
     void deveEditarAnuncioExistente() throws Exception {
         Long anuncioId = cadastrarAnuncio(
@@ -157,6 +222,7 @@ class AnuncioFluxoIntegrationTest {
         assertThat(anuncio.get("categoria_id")).isEqualTo(documentosId);
     }
 
+    // Teste: substituicao de imagem na edicao.
     @Test
     void deveAtualizarImagemDoAnuncio() throws Exception {
         Long anuncioId = cadastrarAnuncio(
@@ -186,6 +252,7 @@ class AnuncioFluxoIntegrationTest {
                 .endsWith(".webp");
     }
 
+    // Teste: remocao do caminho da imagem na edicao.
     @Test
     void deveRemoverImagemDoAnuncioNaEdicao() throws Exception {
         Long anuncioId = cadastrarAnuncio(
@@ -214,6 +281,40 @@ class AnuncioFluxoIntegrationTest {
         assertThat(buscarAnuncio(anuncioId).get("imagem")).isNull();
     }
 
+    // Teste: remocao do arquivo fisico ao remover imagem.
+    @Test
+    void deveRemoverArquivoDeUploadAoRemoverImagemNaEdicao() throws Exception {
+        Long anuncioId = cadastrarAnuncio(
+                "Mochila com arquivo",
+                "Mochila azul encontrada no corredor.",
+                "ENCONTRADO",
+                documentosId,
+                "Corredor");
+        // Cria o arquivo fisico para confirmar que remover a imagem tambem limpa o upload.
+        Path arquivo = TEST_UPLOAD_DIR.resolve("mochila-remover.png");
+        Files.createDirectories(TEST_UPLOAD_DIR);
+        Files.write(arquivo, new byte[] { 1, 2, 3 });
+        jdbcTemplate.update("update anuncios set imagem = ? where id = ?", "/uploads/mochila-remover.png", anuncioId);
+
+        mockMvc.perform(post("/anuncios/{id}/editar", anuncioId)
+                .with(csrf())
+                .with(usuarioPadrao())
+                .param("titulo", "Mochila com arquivo")
+                .param("descricao", "Mochila azul encontrada no corredor.")
+                .param("tipoAnuncio", "ENCONTRADO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Corredor")
+                .param("imagemAtual", "/uploads/mochila-remover.png")
+                .param("removerImagem", "true"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/anuncios/" + anuncioId))
+                .andExpect(flash().attribute("mensagem", "Anuncio atualizado com sucesso."));
+
+        assertThat(Files.exists(arquivo)).isFalse();
+        assertThat(buscarAnuncio(anuncioId).get("imagem")).isNull();
+    }
+
+    // Teste: marcar anuncio como resolvido e listar no historico.
     @Test
     void deveMarcarAnuncioComoResolvidoEListarNoHistorico() throws Exception {
         Long anuncioId = cadastrarAnuncio(
@@ -243,6 +344,7 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(content().string(containsString("RESOLVIDO")));
     }
 
+    // Teste: exclusao de anuncio existente.
     @Test
     void deveExcluirAnuncioExistente() throws Exception {
         Long anuncioId = cadastrarAnuncio(
@@ -270,6 +372,7 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(content().string(not(containsString("Guarda-chuva encontrado"))));
     }
 
+    // Teste: erro ao excluir anuncio inexistente.
     @Test
     void deveInformarErroAoExcluirAnuncioInexistente() throws Exception {
         mockMvc.perform(post("/anuncios/{id}/excluir", 9999L)
@@ -280,6 +383,7 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(flash().attribute("mensagemErro", "Anuncio nao encontrado."));
     }
 
+    // Teste: bloqueio de exclusao sem permissao.
     @Test
     void deveBloquearExclusaoPorUsuarioSemPermissao() throws Exception {
         Long anuncioId = cadastrarAnuncio(
@@ -304,6 +408,60 @@ class AnuncioFluxoIntegrationTest {
         assertThat(total).isEqualTo(1L);
     }
 
+    // Teste: bloqueio de edicao sem permissao.
+    @Test
+    void deveBloquearEdicaoPorUsuarioSemPermissao() throws Exception {
+        Long anuncioId = cadastrarAnuncio(
+                "Tablet perdido",
+                "Tablet perdido no laboratorio.",
+                "PERDIDO",
+                eletronicosId,
+                "Laboratorio");
+        // Usuario comum diferente do dono nao pode gerenciar o anuncio.
+        inserirUsuario("Outro Usuario", "outro@ufes.br", "USUARIO");
+
+        mockMvc.perform(post("/anuncios/{id}/editar", anuncioId)
+                .with(csrf())
+                .with(user("outro@ufes.br").roles("USUARIO"))
+                .param("titulo", "Tablet alterado")
+                .param("descricao", "Tentativa de alteracao.")
+                .param("tipoAnuncio", "ENCONTRADO")
+                .param("categoriaId", documentosId.toString())
+                .param("local", "Biblioteca"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attribute("mensagemErro", "Voce nao tem permissao para gerenciar este anuncio."));
+
+        Map<String, Object> anuncio = buscarAnuncio(anuncioId);
+        assertThat(anuncio)
+                .containsEntry("titulo", "Tablet perdido")
+                .containsEntry("tipo_anuncio", "PERDIDO")
+                .containsEntry("local", "Laboratorio");
+    }
+
+    // Teste: bloqueio de resolucao sem permissao.
+    @Test
+    void deveBloquearResolucaoPorUsuarioSemPermissao() throws Exception {
+        Long anuncioId = cadastrarAnuncio(
+                "Calculadora perdida",
+                "Calculadora cientifica perdida na sala.",
+                "PERDIDO",
+                eletronicosId,
+                "Sala 12");
+        // A mesma regra de permissao tambem protege a acao de resolver.
+        inserirUsuario("Outro Usuario", "outro@ufes.br", "USUARIO");
+
+        mockMvc.perform(post("/anuncios/{id}/resolver", anuncioId)
+                .with(csrf())
+                .with(user("outro@ufes.br").roles("USUARIO")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attribute("mensagemErro", "Voce nao tem permissao para gerenciar este anuncio."));
+
+        assertThat(buscarAnuncio(anuncioId)).containsEntry("status", "ATIVO");
+    }
+
+    // Teste: remocao do arquivo de upload ao excluir anuncio.
     @Test
     void deveRemoverArquivoDeUploadAoExcluirAnuncio() throws Exception {
         MockMultipartFile imagem = imagemTeste("relogio.png", "image/png");
@@ -337,6 +495,7 @@ class AnuncioFluxoIntegrationTest {
         assertThat(Files.exists(arquivo)).isFalse();
     }
 
+    // Teste: cadastro de usuario, senha criptografada e login.
     @Test
     void deveCadastrarUsuarioComSenhaCriptografadaEPermitirLogin() throws Exception {
         mockMvc.perform(post("/cadastro")
@@ -364,6 +523,51 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(authenticated().withUsername("aluno@ufes.br"));
     }
 
+    // Teste: rejeicao de cadastro com e-mail duplicado.
+    @Test
+    void deveRejeitarCadastroDeUsuarioComEmailDuplicado() throws Exception {
+        // O cadastro normaliza e-mail, entao caixa alta/minuscula nao cria duplicidade.
+        inserirUsuario("Aluno Existente", "aluno@ufes.br", "USUARIO");
+
+        mockMvc.perform(post("/cadastro")
+                .with(csrf())
+                .param("nome", "Outro Aluno")
+                .param("email", "ALUNO@UFES.BR")
+                .param("senha", "123456")
+                .param("confirmacaoSenha", "123456"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("auth/cadastro"))
+                .andExpect(content().string(containsString("E-mail ja cadastrado.")));
+
+        Long total = jdbcTemplate.queryForObject(
+                "select count(*) from usuarios where email = ?",
+                Long.class,
+                "aluno@ufes.br");
+        assertThat(total).isEqualTo(1L);
+    }
+
+    // Teste: rejeicao de cadastro com senhas diferentes.
+    @Test
+    void deveRejeitarCadastroDeUsuarioComSenhasDiferentes() throws Exception {
+        // Senhas divergentes devolvem erro no formulario e nao persistem usuario.
+        mockMvc.perform(post("/cadastro")
+                .with(csrf())
+                .param("nome", "Aluno Teste")
+                .param("email", "aluno@ufes.br")
+                .param("senha", "123456")
+                .param("confirmacaoSenha", "654321"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("auth/cadastro"))
+                .andExpect(content().string(containsString("As senhas informadas nao conferem.")));
+
+        Long total = jdbcTemplate.queryForObject(
+                "select count(*) from usuarios where email = ?",
+                Long.class,
+                "aluno@ufes.br");
+        assertThat(total).isZero();
+    }
+
+    // Teste: redirecionamento para login sem autenticacao.
     @Test
     void deveRedirecionarParaLoginAoTentarCadastrarAnuncioSemAutenticacao() throws Exception {
         mockMvc.perform(post("/anuncios")
