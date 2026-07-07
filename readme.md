@@ -86,6 +86,7 @@ classDiagram
 ## Ferramentas Escolhidas
 
 - **Git**: controle de versão.
+- **GitHub Issues**: acompanhamento das tarefas e funcionalidades implementadas.
 - **Maven**: build e gerenciamento de dependências.
 - **H2 Database**: banco em memória para desenvolvimento.
 - **JavaDoc**: documentação do código Java.
@@ -102,6 +103,33 @@ classDiagram
 - **Thymeleaf**: páginas HTML dinâmicas.
 - **H2 Database**: banco de dados em memória. (inicialmente para testes)
 
+## Como Executar
+
+Requisitos:
+
+- Java 17
+- Maven
+
+Comandos principais:
+
+```bash
+mvn spring-boot:run
+```
+
+A aplicacao fica disponivel em `http://localhost:8080`.
+
+Para executar os testes automatizados:
+
+```bash
+mvn test
+```
+
+Para gerar o arquivo `.jar`:
+
+```bash
+mvn package
+```
+
 
 ## Funcionalidades Implementadas
 
@@ -110,6 +138,7 @@ classDiagram
 - Cadastro inicial de anúncios via formulário
 - Visualização dos detalhes dos anúncios
 - Busca e filtros por texto, tipo, categoria e local
+- Página "Meus anúncios" com listagem das publicações do usuário autenticado
 - Edição de anúncios
 - Exclusão de anúncios
 - Marcação de anúncios como resolvidos
@@ -117,22 +146,28 @@ classDiagram
 - Permissao para editar, resolver e excluir apenas anuncios do proprio usuario ou por administrador
 - Testes automatizados de fluxo, cenarios especificos e teste unitario de armazenamento de imagem
 - Upload de imagem nos anúncios
+- Remocao de imagem ao editar anuncios
 - Entidades principais do domínio
 - Banco H2 em memória
 - Página inicial com Thymeleaf
+- Dados iniciais de demonstracao com administrador, usuario comum e anuncios de exemplo
 
 ## Testes Automatizados
 
 - Executados com `mvn test`.
 - Cobrem fluxos web com Spring Boot, MockMvc, H2 e JdbcTemplate.
-- Incluem cenarios especificos de upload invalido, filtros, e-mail duplicado, senhas diferentes, permissoes de edicao/resolucao/exclusao e remocao fisica de imagem.
+- Incluem cenarios especificos de upload invalido, filtros, e-mail duplicado, senhas diferentes, pagina "Meus anuncios", permissoes de edicao/resolucao/exclusao e remocao fisica de imagem.
 - Incluem testes unitarios pequenos de `ImagemStorageService`, sem subir servidor, Spring ou banco.
-- Resultado atual: 27 testes, 0 falhas.
+- Resultado atual: 29 testes, 0 falhas.
 
 ## Acesso de Demonstracao
 
 - **Administrador:** secretaria@faculdade.edu
 - **Senha:** 123456
+- **Usuario comum:** aluno@faculdade.edu
+- **Senha:** 123456
+
+O usuario comum e criado com anuncios de exemplo sem imagem para facilitar a demonstracao da pagina "Meus anuncios".
 
 ## Funcionalidades Planejadas
 
@@ -140,6 +175,5 @@ classDiagram
 
 ## Ferramentas Planejadas
 
-- GitHub Issues para acompanhamento de tarefas
 - GitHub Actions para CI/CD
 - Docker para containerização futura

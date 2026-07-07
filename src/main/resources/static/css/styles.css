@@ -470,6 +470,23 @@ body {
     margin: 0;
 }
 
+.card-management-actions {
+    align-items: stretch;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.card-management-actions .link-button,
+.card-management-actions form {
+    flex: 1 1 120px;
+}
+
+.card-management-actions .button,
+.card-management-actions .link-button {
+    width: 100%;
+    padding: 0 12px;
+}
+
 .current-image {
     display: grid;
     gap: 8px;

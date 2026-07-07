@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import br.com.achadoseperdidos.model.Anuncio;
 import br.com.achadoseperdidos.model.StatusAnuncio;
 import br.com.achadoseperdidos.model.TipoAnuncio;
+import br.com.achadoseperdidos.model.Usuario;
 
 /**
  * Repositorio responsavel pelas operacoes de persistencia de anuncios.
@@ -46,6 +47,31 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
             order by a.data desc
             """)
     List<Anuncio> buscarPorStatus(@Param("status") StatusAnuncio status);
+
+    /**
+     * Lista anuncios publicados por um usuario carregando dados usados nos templates.
+     *
+     * @param usuario usuario usado como filtro
+     * @return lista de anuncios publicados pelo usuario
+     */
+    @Query("""
+            select a
+            from Anuncio a
+            join fetch a.categoria
+            join fetch a.usuario
+            where a.usuario = :usuario
+            order by a.data desc
+            """)
+    List<Anuncio> buscarPorUsuario(@Param("usuario") Usuario usuario);
+
+    /**
+     * Verifica se um usuario ja possui um anuncio com o mesmo titulo.
+     *
+     * @param titulo titulo usado na busca
+     * @param usuario dono do anuncio
+     * @return verdadeiro quando o anuncio ja existe
+     */
+    boolean existsByTituloAndUsuario(String titulo, Usuario usuario);
 
     /**
      * Lista anuncios ativos aplicando filtros opcionais de busca.

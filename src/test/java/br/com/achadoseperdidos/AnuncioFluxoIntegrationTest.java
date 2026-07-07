@@ -344,6 +344,51 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(content().string(containsString("RESOLVIDO")));
     }
 
+    // Teste: pagina de meus anuncios lista apenas publicacoes do usuario autenticado.
+    @Test
+    void deveListarApenasAnunciosDoUsuarioAutenticado() throws Exception {
+        inserirUsuario("Outro Usuario", "outro@ufes.br", "USUARIO");
+        Long anuncioResolvidoId = cadastrarAnuncio(
+                "Documento resolvido",
+                "Documento que ja foi entregue.",
+                "ENCONTRADO",
+                documentosId,
+                "Secretaria");
+        cadastrarAnuncio(
+                "Chave da secretaria",
+                "Chave encontrada pela secretaria.",
+                "ENCONTRADO",
+                documentosId,
+                "Secretaria");
+        cadastrarAnuncioComo(
+                "Fone de outro usuario",
+                "Fone publicado por outro usuario.",
+                "PERDIDO",
+                eletronicosId,
+                "Laboratorio",
+                "outro@ufes.br",
+                "USUARIO");
+        jdbcTemplate.update("update anuncios set status = ? where id = ?", "RESOLVIDO", anuncioResolvidoId);
+
+        mockMvc.perform(get("/anuncios/meus")
+                .with(usuarioPadrao()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("anuncios/meus"))
+                .andExpect(content().string(containsString("Meus anuncios")))
+                .andExpect(content().string(containsString("Documento resolvido")))
+                .andExpect(content().string(containsString("Chave da secretaria")))
+                .andExpect(content().string(containsString("RESOLVIDO")))
+                .andExpect(content().string(not(containsString("Fone de outro usuario"))));
+    }
+
+    // Teste: acesso aos meus anuncios exige login.
+    @Test
+    void deveRedirecionarParaLoginAoAcessarMeusAnunciosSemAutenticacao() throws Exception {
+        mockMvc.perform(get("/anuncios/meus"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("http://localhost/login"));
+    }
+
     // Teste: exclusao de anuncio existente.
     @Test
     void deveExcluirAnuncioExistente() throws Exception {
@@ -587,9 +632,27 @@ class AnuncioFluxoIntegrationTest {
             String tipoAnuncio,
             Long categoriaId,
             String local) throws Exception {
+        return cadastrarAnuncioComo(
+                titulo,
+                descricao,
+                tipoAnuncio,
+                categoriaId,
+                local,
+                EMAIL_USUARIO_PADRAO,
+                "ADMIN");
+    }
+
+    private Long cadastrarAnuncioComo(
+            String titulo,
+            String descricao,
+            String tipoAnuncio,
+            Long categoriaId,
+            String local,
+            String email,
+            String role) throws Exception {
         mockMvc.perform(post("/anuncios")
                 .with(csrf())
-                .with(usuarioPadrao())
+                .with(user(email).roles(role))
                 .param("titulo", titulo)
                 .param("descricao", descricao)
                 .param("tipoAnuncio", tipoAnuncio)
