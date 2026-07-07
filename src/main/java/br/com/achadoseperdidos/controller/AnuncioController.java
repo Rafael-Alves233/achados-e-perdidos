@@ -57,6 +57,18 @@ public class AnuncioController {
     }
 
     /**
+     * Exibe os anuncios publicados pelo usuario autenticado.
+     *
+     * @param model objeto usado para enviar dados para o template Thymeleaf
+     * @return nome do template de anuncios do usuario
+     */
+    @GetMapping("/meus")
+    public String meus(Model model) {
+        model.addAttribute("anuncios", anuncioService.listarDoUsuarioAutenticado());
+        return "anuncios/meus";
+    }
+
+    /**
      * Exibe o formulario de edicao de um anuncio.
      *
      * @param id identificador do anuncio

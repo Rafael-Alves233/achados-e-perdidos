@@ -66,6 +66,17 @@ public class AnuncioService {
     }
 
     /**
+     * Lista os anuncios publicados pelo usuario autenticado.
+     *
+     * @return anuncios do usuario autenticado
+     */
+    @Transactional(readOnly = true)
+    public List<Anuncio> listarDoUsuarioAutenticado() {
+        Usuario usuario = usuarioService.obterUsuarioAutenticado();
+        return anuncioRepository.buscarPorUsuario(usuario);
+    }
+
+    /**
      * Busca um anuncio pelo identificador.
      *
      * @param id identificador do anuncio

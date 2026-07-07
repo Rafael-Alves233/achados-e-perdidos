@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anuncios resolvidos - Achados e Perdidos</title>
+    <title>Meus anuncios - Achados e Perdidos</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 
@@ -22,26 +22,31 @@
             </div>
             <p class="eyebrow">Universidade Federal do Espirito Santo</p>
             <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
-            <h1>Anuncios resolvidos</h1>
-            <p class="subtitle">Historico de anuncios encerrados no sistema.</p>
+            <h1>Meus anuncios</h1>
+            <p class="subtitle">Acompanhe e gerencie os anuncios publicados por voce.</p>
         </div>
     </header>
 
     <main class="container">
         <section class="section-header">
             <div>
-                <p class="eyebrow">Historico</p>
-                <h2>Anuncios resolvidos</h2>
+                <p class="eyebrow">Area do usuario</p>
+                <h2>Meus anuncios</h2>
             </div>
             <div class="section-actions">
                 <a class="link-button" th:href="@{/}">Voltar</a>
-                <span class="counter" th:text="${#lists.size(anuncios)} + ' resolvidos'">0 resolvidos</span>
+                <a class="button" th:href="@{/anuncios/novo}">Cadastrar anuncio</a>
+                <span class="counter" th:text="${#lists.size(anuncios)} + ' publicados'">0 publicados</span>
             </div>
         </section>
 
+        <p class="flash-message" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+        <p class="flash-message flash-message-error" th:if="${mensagemErro}" th:text="${mensagemErro}">Erro</p>
+
         <section class="empty-state" th:if="${#lists.isEmpty(anuncios)}">
-            <h3>Nenhum anuncio resolvido</h3>
-            <p>Os anuncios marcados como resolvidos aparecerao aqui.</p>
+            <h3>Nenhum anuncio publicado</h3>
+            <p>Quando voce cadastrar um anuncio, ele aparecera aqui.</p>
+            <a class="button" th:href="@{/anuncios/novo}">Cadastrar anuncio</a>
         </section>
 
         <section class="anuncios-grid" th:if="${!#lists.isEmpty(anuncios)}">
@@ -52,7 +57,7 @@
 
                 <div class="card-header">
                     <span class="badge" th:text="${anuncio.tipoAnuncio}">PERDIDO</span>
-                    <span class="counter" th:text="${anuncio.status}">RESOLVIDO</span>
+                    <span class="counter" th:text="${anuncio.status}">ATIVO</span>
                 </div>
 
                 <h3 th:text="${anuncio.titulo}">Titulo do anuncio</h3>
@@ -71,13 +76,20 @@
                         <dt>Data</dt>
                         <dd th:text="${#temporals.format(anuncio.data, 'dd/MM/yyyy')}">18/06/2026</dd>
                     </div>
-                    <div>
-                        <dt>Publicado por</dt>
-                        <dd th:text="${anuncio.usuario.nome}">Usuario</dd>
-                    </div>
                 </dl>
 
-                <a class="card-action" th:href="@{/anuncios/{id}(id=${anuncio.id})}">Ver detalhes</a>
+                <div class="detail-actions card-management-actions">
+                    <a class="link-button" th:href="@{/anuncios/{id}(id=${anuncio.id})}">Ver detalhes</a>
+                    <a class="link-button" th:href="@{/anuncios/{id}/editar(id=${anuncio.id})}">Editar</a>
+                    <form th:if="${anuncio.status.name() == 'ATIVO'}"
+                        th:action="@{/anuncios/{id}/resolver(id=${anuncio.id})}" method="post">
+                        <button class="button" type="submit">Resolver</button>
+                    </form>
+                    <form th:action="@{/anuncios/{id}/excluir(id=${anuncio.id})}" method="post"
+                        onsubmit="return confirm('Deseja realmente excluir este anuncio?');">
+                        <button class="button button-danger" type="submit">Excluir</button>
+                    </form>
+                </div>
             </article>
         </section>
     </main>
