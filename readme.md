@@ -115,11 +115,19 @@ classDiagram
 - Marcação de anúncios como resolvidos
 - Histórico/listagem de anúncios resolvidos
 - Permissao para editar, resolver e excluir apenas anuncios do proprio usuario ou por administrador
-- Testes automatizados de fluxo para cadastro, edicao, exclusao, resolucao, detalhes, historico, upload e autenticacao
+- Testes automatizados de fluxo, cenarios especificos e teste unitario de armazenamento de imagem
 - Upload de imagem nos anúncios
 - Entidades principais do domínio
 - Banco H2 em memória
 - Página inicial com Thymeleaf
+
+## Testes Automatizados
+
+- Executados com `mvn test`.
+- Cobrem fluxos web com Spring Boot, MockMvc, H2 e JdbcTemplate.
+- Incluem cenarios especificos de upload invalido, filtros, e-mail duplicado, senhas diferentes, permissoes de edicao/resolucao/exclusao e remocao fisica de imagem.
+- Incluem testes unitarios pequenos de `ImagemStorageService`, sem subir servidor, Spring ou banco.
+- Resultado atual: 27 testes, 0 falhas.
 
 ## Acesso de Demonstracao
 
