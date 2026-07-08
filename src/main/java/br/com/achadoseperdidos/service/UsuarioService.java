@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.achadoseperdidos.dto.UsuarioCadastroDto;
+import br.com.achadoseperdidos.dto.UsuarioPerfilDto;
 import br.com.achadoseperdidos.model.TipoUsuario;
 import br.com.achadoseperdidos.model.Usuario;
 import br.com.achadoseperdidos.repository.UsuarioRepository;
@@ -73,6 +74,19 @@ public class UsuarioService {
         usuario.setSenha(passwordEncoder.encode(form.getSenha()));
         usuario.setTipoUsuario(TipoUsuario.USUARIO);
         return usuarioRepository.save(usuario);
+    }
+
+    /**
+     * Atualiza os dados editaveis do perfil do usuario autenticado.
+     *
+     * @param form dados informados no formulario de perfil
+     * @return usuario atualizado
+     */
+    @Transactional
+    public Usuario atualizarPerfil(UsuarioPerfilDto form) {
+        Usuario usuario = obterUsuarioAutenticado();
+        usuario.setNome(form.getNome().trim());
+        return usuario;
     }
 
     /**

@@ -74,6 +74,23 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
     boolean existsByTituloAndUsuario(String titulo, Usuario usuario);
 
     /**
+     * Conta quantos anuncios pertencem a um usuario.
+     *
+     * @param usuario dono dos anuncios
+     * @return total de anuncios do usuario
+     */
+    long countByUsuario(Usuario usuario);
+
+    /**
+     * Conta quantos anuncios de um usuario possuem o status informado.
+     *
+     * @param usuario dono dos anuncios
+     * @param status status usado como filtro
+     * @return total de anuncios encontrados
+     */
+    long countByUsuarioAndStatus(Usuario usuario, StatusAnuncio status);
+
+    /**
      * Lista anuncios ativos aplicando filtros opcionais de busca.
      *
      * @param status status usado como filtro obrigatorio

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar topbar-compact">
+        <div class="container">
+            <div class="auth-bar">
+                <span th:if="${autenticado}" th:text="${usuarioLogado.nome}">Usuario</span>
+                <a class="auth-link" th:if="${autenticado}" th:href="@{/perfil}">Perfil</a>
+                <a class="auth-link" th:if="${autenticado}" th:href="@{/anuncios/meus}">Meus anuncios</a>
+                <form th:if="${autenticado}" th:action="@{/logout}" method="post">
+                    <button class="auth-link" type="submit">Sair</button>
+                </form>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/login}">Entrar</a>
+                <a class="auth-link" th:if="${!autenticado}" th:href="@{/cadastro}">Criar conta</a>
+            </div>
+            <p class="eyebrow">Universidade Federal do Espirito Santo</p>
+            <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
+            <h1>Perfil</h1>
+            <p class="subtitle">Consulte seus dados e acompanhe um resumo dos seus anuncios.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section-header">
+            <div>
+                <p class="eyebrow">Area do usuario</p>
+                <h2>Meu perfil</h2>
+            </div>
+            <div class="section-actions">
+                <a class="link-button" th:href="@{/}">Voltar</a>
+                <a class="button" th:href="@{/anuncios/meus}">Meus anuncios</a>
+            </div>
+        </section>
+
+        <p class="flash-message" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+        <p class="flash-message flash-message-error" th:if="${mensagemErro}" th:text="${mensagemErro}">Erro</p>
+
+        <section class="profile-layout">
+            <article class="profile-card">
+                <h3>Dados da conta</h3>
+                <dl class="detail-list profile-list">
+                    <div>
+                        <dt>Nome</dt>
+                        <dd th:text="${usuarioPerfil.nome}">Nome do usuario</dd>
+                    </div>
+                    <div>
+                        <dt>E-mail</dt>
+                        <dd th:text="${usuarioPerfil.email}">usuario@ufes.br</dd>
+                    </div>
+                    <div>
+                        <dt>Tipo de usuario</dt>
+                        <dd th:text="${usuarioPerfil.tipoUsuario}">USUARIO</dd>
+                    </div>
+                </dl>
+            </article>
+
+            <article class="profile-card">
+                <h3>Resumo dos anuncios</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span th:text="${totalAnuncios}">0</span>
+                        <p>publicados</p>
+                    </div>
+                    <div class="stat-item">
+                        <span th:text="${totalAtivos}">0</span>
+                        <p>ativos</p>
+                    </div>
+                    <div class="stat-item">
+                        <span th:text="${totalResolvidos}">0</span>
+                        <p>resolvidos</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="form-section">
+            <form class="form-card profile-form" th:action="@{/perfil}" th:object="${usuarioPerfilDto}" method="post">
+                <div class="form-field form-field-full">
+                    <label for="nome">Nome</label>
+                    <input id="nome" type="text" th:field="*{nome}" maxlength="120" autocomplete="name" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Erro</p>
+                </div>
+
+                <div class="form-actions">
+                    <a class="link-button" th:href="@{/perfil}">Cancelar</a>
+                    <button class="button" type="submit">Salvar perfil</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>
