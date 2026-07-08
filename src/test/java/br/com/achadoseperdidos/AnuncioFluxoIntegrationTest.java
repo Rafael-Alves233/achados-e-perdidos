@@ -111,14 +111,19 @@ class AnuncioFluxoIntegrationTest {
                 Long.class,
                 "Cracha com foto");
         Map<String, Object> anuncio = buscarAnuncio(anuncioId);
+        String imagemSalva = (String) anuncio.get("imagem");
 
-        assertThat((String) anuncio.get("imagem"))
+        assertThat(imagemSalva)
                 .startsWith("/uploads/")
                 .endsWith(".png");
 
         mockMvc.perform(get("/anuncios/{id}", anuncioId))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("/uploads/")));
+
+        mockMvc.perform(get(imagemSalva))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes(new byte[] { 1, 2, 3, 4 }));
     }
 
     // Teste: rejeicao de upload com arquivo invalido.
