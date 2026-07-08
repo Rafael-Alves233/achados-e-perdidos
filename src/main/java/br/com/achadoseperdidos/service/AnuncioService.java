@@ -77,6 +77,29 @@ public class AnuncioService {
     }
 
     /**
+     * Conta todos os anuncios publicados por um usuario.
+     *
+     * @param usuario usuario avaliado
+     * @return total de anuncios publicados
+     */
+    @Transactional(readOnly = true)
+    public long contarPorUsuario(Usuario usuario) {
+        return anuncioRepository.countByUsuario(usuario);
+    }
+
+    /**
+     * Conta os anuncios publicados por um usuario em determinado status.
+     *
+     * @param usuario usuario avaliado
+     * @param status status usado como filtro
+     * @return total de anuncios encontrados
+     */
+    @Transactional(readOnly = true)
+    public long contarPorUsuarioEStatus(Usuario usuario, StatusAnuncio status) {
+        return anuncioRepository.countByUsuarioAndStatus(usuario, status);
+    }
+
+    /**
      * Busca um anuncio pelo identificador.
      *
      * @param id identificador do anuncio

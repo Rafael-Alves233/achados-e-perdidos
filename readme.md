@@ -141,6 +141,7 @@ mvn package
 - Visualização dos detalhes dos anúncios
 - Busca e filtros por texto, tipo, categoria e local
 - Página "Meus anúncios" com listagem das publicações do usuário autenticado
+- Página de perfil com dados da conta, resumo dos anúncios e edição do nome
 - Edição de anúncios
 - Exclusão de anúncios
 - Marcação de anúncios como resolvidos
@@ -158,9 +159,9 @@ mvn package
 
 - Executados com `mvn test`.
 - Cobrem fluxos web com Spring Boot, MockMvc, H2 em memoria e JdbcTemplate.
-- Incluem cenarios especificos de upload invalido, filtros, e-mail duplicado, senhas diferentes, pagina "Meus anuncios", permissoes de edicao/resolucao/exclusao e remocao fisica de imagem.
+- Incluem cenarios especificos de upload invalido, filtros, e-mail duplicado, senhas diferentes, pagina "Meus anuncios", perfil do usuario, permissoes de edicao/resolucao/exclusao e remocao fisica de imagem.
 - Incluem testes unitarios pequenos de `ImagemStorageService`, sem subir servidor, Spring ou banco.
-- Resultado atual: 29 testes, 0 falhas.
+- Resultado atual: 33 testes, 0 falhas.
 
 ## Acesso de Demonstracao
 

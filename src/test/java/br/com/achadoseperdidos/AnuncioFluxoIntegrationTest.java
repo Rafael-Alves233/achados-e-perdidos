@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -387,6 +388,94 @@ class AnuncioFluxoIntegrationTest {
         mockMvc.perform(get("/anuncios/meus"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
+    }
+
+    // Teste: perfil mostra dados da conta e resumo dos anuncios do usuario autenticado.
+    @Test
+    void deveExibirPerfilDoUsuarioAutenticadoComResumoDeAnuncios() throws Exception {
+        inserirUsuario("Outro Usuario", "outro@ufes.br", "USUARIO");
+        Long anuncioResolvidoId = cadastrarAnuncio(
+                "Documento do perfil",
+                "Documento usado no resumo do perfil.",
+                "ENCONTRADO",
+                documentosId,
+                "Secretaria");
+        cadastrarAnuncio(
+                "Chave do perfil",
+                "Chave usada no resumo do perfil.",
+                "ENCONTRADO",
+                documentosId,
+                "Secretaria");
+        cadastrarAnuncioComo(
+                "Objeto de outro perfil",
+                "Objeto de outro usuario.",
+                "PERDIDO",
+                eletronicosId,
+                "Laboratorio",
+                "outro@ufes.br",
+                "USUARIO");
+        jdbcTemplate.update("update anuncios set status = ? where id = ?", "RESOLVIDO", anuncioResolvidoId);
+
+        mockMvc.perform(get("/perfil")
+                .with(usuarioPadrao()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("usuarios/perfil"))
+                .andExpect(model().attribute("totalAnuncios", 2L))
+                .andExpect(model().attribute("totalAtivos", 1L))
+                .andExpect(model().attribute("totalResolvidos", 1L))
+                .andExpect(content().string(containsString("Meu perfil")))
+                .andExpect(content().string(containsString("Secretaria Academica")))
+                .andExpect(content().string(containsString(EMAIL_USUARIO_PADRAO)))
+                .andExpect(content().string(containsString("ADMIN")));
+    }
+
+    // Teste: acesso ao perfil exige login.
+    @Test
+    void deveRedirecionarParaLoginAoAcessarPerfilSemAutenticacao() throws Exception {
+        mockMvc.perform(get("/perfil"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("http://localhost/login"));
+    }
+
+    // Teste: atualizacao do nome no perfil.
+    @Test
+    void deveAtualizarNomeDoPerfil() throws Exception {
+        mockMvc.perform(post("/perfil")
+                .with(csrf())
+                .with(usuarioPadrao())
+                .param("nome", "Secretaria Atualizada"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/perfil"))
+                .andExpect(flash().attribute("mensagem", "Perfil atualizado com sucesso."));
+
+        String nomeAtualizado = jdbcTemplate.queryForObject(
+                "select nome from usuarios where email = ?",
+                String.class,
+                EMAIL_USUARIO_PADRAO);
+        assertThat(nomeAtualizado).isEqualTo("Secretaria Atualizada");
+
+        mockMvc.perform(get("/perfil")
+                .with(usuarioPadrao()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Secretaria Atualizada")));
+    }
+
+    // Teste: validacao do nome obrigatorio no perfil.
+    @Test
+    void deveRejeitarAtualizacaoDePerfilComNomeVazio() throws Exception {
+        mockMvc.perform(post("/perfil")
+                .with(csrf())
+                .with(usuarioPadrao())
+                .param("nome", "   "))
+                .andExpect(status().isOk())
+                .andExpect(view().name("usuarios/perfil"))
+                .andExpect(content().string(containsString("Informe o nome.")));
+
+        String nomeSalvo = jdbcTemplate.queryForObject(
+                "select nome from usuarios where email = ?",
+                String.class,
+                EMAIL_USUARIO_PADRAO);
+        assertThat(nomeSalvo).isEqualTo("Secretaria Academica");
     }
 
     // Teste: exclusao de anuncio existente.
