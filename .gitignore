@@ -1,7 +1,9 @@
 target/
-data/
 uploads/
 *.log
+
+data/*
+!data/.gitkeep
 
 .idea/
 .vscode/

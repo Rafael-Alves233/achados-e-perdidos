@@ -88,7 +88,7 @@ classDiagram
 - **Git**: controle de versão.
 - **GitHub Issues**: acompanhamento das tarefas e funcionalidades implementadas.
 - **Maven**: build e gerenciamento de dependências.
-- **H2 Database**: banco em memória para desenvolvimento.
+- **H2 Database**: banco em arquivo local para desenvolvimento e demonstração.
 - **JavaDoc**: documentação do código Java.
 - **Markdown**: documentação no README/Wiki.
 
@@ -101,7 +101,7 @@ classDiagram
 - **Spring Data JPA**: persistência de dados.
 - **Hibernate**: implementação JPA.
 - **Thymeleaf**: páginas HTML dinâmicas.
-- **H2 Database**: banco de dados em memória. (inicialmente para testes)
+- **H2 Database**: banco de dados em arquivo na aplicação e em memória nos testes automatizados.
 
 ## Como Executar
 
@@ -117,6 +117,8 @@ mvn spring-boot:run
 ```
 
 A aplicacao fica disponivel em `http://localhost:8080`.
+
+Os dados cadastrados ficam salvos localmente na pasta `data/`, usando H2 em arquivo. Essa pasta esta no `.gitignore`, portanto o banco gerado na maquina do desenvolvedor nao e enviado para o GitHub.
 
 Para executar os testes automatizados:
 
@@ -148,14 +150,14 @@ mvn package
 - Upload de imagem nos anúncios
 - Remocao de imagem ao editar anuncios
 - Entidades principais do domínio
-- Banco H2 em memória
+- Banco H2 em arquivo para manter usuarios e anuncios apos reiniciar a aplicacao
 - Página inicial com Thymeleaf
 - Dados iniciais de demonstracao com administrador, usuario comum e anuncios de exemplo
 
 ## Testes Automatizados
 
 - Executados com `mvn test`.
-- Cobrem fluxos web com Spring Boot, MockMvc, H2 e JdbcTemplate.
+- Cobrem fluxos web com Spring Boot, MockMvc, H2 em memoria e JdbcTemplate.
 - Incluem cenarios especificos de upload invalido, filtros, e-mail duplicado, senhas diferentes, pagina "Meus anuncios", permissoes de edicao/resolucao/exclusao e remocao fisica de imagem.
 - Incluem testes unitarios pequenos de `ImagemStorageService`, sem subir servidor, Spring ou banco.
 - Resultado atual: 29 testes, 0 falhas.
