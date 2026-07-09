@@ -40,7 +40,9 @@
         <p class="flash-message" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
         <p class="flash-message flash-message-error" th:if="${mensagemErro}" th:text="${mensagemErro}">Erro</p>
 
-        <article class="detail-card">
+        <article class="detail-card"
+            th:classappend="${anuncio.status.name() == 'RESOLVIDO'} ? 'estado-resolvido' :
+                (${anuncio.tipoAnuncio.name() == 'PERDIDO'} ? 'estado-perdido' : 'estado-encontrado')">
             <div class="detail-image" th:if="${anuncio.imagem != null and !#strings.isEmpty(anuncio.imagem)}">
                 <img th:src="@{${anuncio.imagem}}" th:alt="${'Imagem do anuncio ' + anuncio.titulo}">
             </div>
