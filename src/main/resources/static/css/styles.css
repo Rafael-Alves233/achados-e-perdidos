@@ -209,6 +209,38 @@ body {
     padding: 20px;
 }
 
+.anuncio-card.estado-perdido,
+.detail-card.estado-perdido {
+    border-left: 6px solid var(--accent);
+}
+
+.anuncio-card.estado-encontrado,
+.detail-card.estado-encontrado {
+    border-left: 6px solid var(--primary);
+}
+
+.anuncio-card.estado-resolvido,
+.detail-card.estado-resolvido {
+    border-left: 6px solid #667085;
+    background: #f8fafc;
+}
+
+.estado-perdido .badge {
+    background: #fff4d6;
+    color: #7a4b00;
+}
+
+.estado-encontrado .badge {
+    background: #e6f4f1;
+    color: var(--primary-dark);
+}
+
+.estado-resolvido .badge,
+.estado-resolvido .counter {
+    background: #eef2f6;
+    color: #344054;
+}
+
 .anuncio-image {
     aspect-ratio: 4 / 3;
     border-radius: 8px;

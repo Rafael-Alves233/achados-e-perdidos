@@ -83,7 +83,9 @@
         </section>
 
         <section class="anuncios-grid" th:if="${!#lists.isEmpty(anuncios)}">
-            <article class="anuncio-card" th:each="anuncio : ${anuncios}">
+            <article class="anuncio-card" th:each="anuncio : ${anuncios}"
+                th:classappend="${anuncio.status.name() == 'RESOLVIDO'} ? 'estado-resolvido' :
+                    (${anuncio.tipoAnuncio.name() == 'PERDIDO'} ? 'estado-perdido' : 'estado-encontrado')">
                 <div class="anuncio-image" th:if="${anuncio.imagem != null and !#strings.isEmpty(anuncio.imagem)}">
                     <img th:src="@{${anuncio.imagem}}" th:alt="${'Imagem do anuncio ' + anuncio.titulo}">
                 </div>
