@@ -15,21 +15,6 @@ O sistema de Achados e Perdidos busca centralizar essas informações em uma apl
 - **Usuário comum:** integrante da comunidade universitária, como estudante, professor, servidor ou colaborador. Poderá consultar anúncios e, após autenticação, publicar e gerenciar os próprios anúncios.
 - **Administrador:** responsável por acompanhar o conteúdo publicado e realizar ações administrativas quando necessário.
 
-### Principais Funcionalidades
-
-O escopo previsto para o sistema inclui:
-
-- Cadastro e autenticação de usuários;
-- Publicação de anúncios de objetos perdidos ou encontrados;
-- Listagem e visualização dos detalhes dos anúncios;
-- Busca e filtros por tipo, categoria e local;
-- Edição e exclusão dos próprios anúncios;
-- Inclusão de imagem do objeto;
-- Marcação de anúncios como resolvidos quando o objeto for devolvido;
-- Administração dos anúncios publicados.
-
-As seções de funcionalidades implementadas e planejadas, apresentadas mais adiante, indicam o estado atual do desenvolvimento.
-
 ## Diagrama de Classes do Domínio
 
 ```mermaid
@@ -99,6 +84,37 @@ classDiagram
 - **Hibernate**: implementação JPA.
 - **Thymeleaf**: páginas HTML dinâmicas.
 - **H2 Database**: banco de dados em arquivo na aplicação e em memória nos testes automatizados.
+
+## Arquitetura e Camadas
+
+A aplicação utiliza o padrão MVC e uma organização em camadas. Cada camada possui uma responsabilidade específica e depende apenas dos componentes necessários para executar sua função.
+
+| Camada ou componente | Localização | Responsabilidade |
+| --- | --- | --- |
+| Domínio | `src/main/java/br/com/achadoseperdidos/model` | Define as entidades, relacionamentos e enumerações centrais, como `Anuncio`, `Usuario` e `Categoria`. |
+| DTOs | `src/main/java/br/com/achadoseperdidos/dto` | Transporta e valida os dados recebidos dos formulários sem expor diretamente as entidades à camada web. |
+| Apresentação web | `src/main/java/br/com/achadoseperdidos/controller`, `src/main/resources/templates` e `src/main/resources/static` | Recebe requisições, prepara o modelo, processa formulários e renderiza as páginas HTML com Thymeleaf e CSS. |
+| Regras de negócio | `src/main/java/br/com/achadoseperdidos/service` | Aplica permissões e regras de usuários, anúncios, painel administrativo e armazenamento de imagens. |
+| Persistência | `src/main/java/br/com/achadoseperdidos/repository` | Usa Spring Data JPA para consultar e persistir entidades no banco H2. |
+| Configuração | `src/main/java/br/com/achadoseperdidos/config` | Configura segurança, acesso aos uploads e carregamento dos dados iniciais de demonstração. |
+
+O fluxo principal de uma operação é:
+
+```text
+Navegador
+    |
+Controller <-> DTOs
+    |
+Service (regras de negócio)
+    |
+Repository
+    |
+Banco H2
+
+Controller -> Model -> Thymeleaf -> HTML -> Navegador
+```
+
+O frontend atual é renderizado no servidor com Thymeleaf. Controllers, services, repositories, segurança e persistência formam o backend da aplicação.
 
 ## Como Executar
 
@@ -252,3 +268,7 @@ O usuario comum e criado com anuncios de exemplo sem imagem para facilitar a dem
 
 - GitHub Actions para CI/CD
 - Docker para containerização futura
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais informações.
