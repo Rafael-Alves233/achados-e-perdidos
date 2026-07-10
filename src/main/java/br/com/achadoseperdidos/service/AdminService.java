@@ -18,6 +18,12 @@ public class AdminService {
     private final AnuncioRepository anuncioRepository;
     private final UsuarioRepository usuarioRepository;
 
+    /**
+     * Cria o servico com os repositorios usados nos indicadores administrativos.
+     *
+     * @param anuncioRepository repositorio de anuncios
+     * @param usuarioRepository repositorio de usuarios
+     */
     public AdminService(AnuncioRepository anuncioRepository, UsuarioRepository usuarioRepository) {
         this.anuncioRepository = anuncioRepository;
         this.usuarioRepository = usuarioRepository;

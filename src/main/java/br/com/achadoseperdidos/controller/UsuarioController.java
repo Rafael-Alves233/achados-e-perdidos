@@ -24,6 +24,12 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
     private final AnuncioService anuncioService;
 
+    /**
+     * Cria o controller com os servicos usados para editar e resumir o perfil.
+     *
+     * @param usuarioService servico responsavel pelos dados do usuario
+     * @param anuncioService servico usado para calcular o resumo de anuncios
+     */
     public UsuarioController(UsuarioService usuarioService, AnuncioService anuncioService) {
         this.usuarioService = usuarioService;
         this.anuncioService = anuncioService;

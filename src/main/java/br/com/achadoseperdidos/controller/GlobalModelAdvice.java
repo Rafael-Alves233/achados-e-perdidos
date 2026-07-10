@@ -15,10 +15,20 @@ public class GlobalModelAdvice {
 
     private final UsuarioService usuarioService;
 
+    /**
+     * Cria o componente com acesso aos dados do usuario autenticado.
+     *
+     * @param usuarioService servico responsavel pelos usuarios
+     */
     public GlobalModelAdvice(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 
+    /**
+     * Disponibiliza para todos os templates o usuario logado e seu perfil de acesso.
+     *
+     * @param model modelo compartilhado com os controllers
+     */
     @ModelAttribute
     public void adicionarUsuarioLogado(Model model) {
         usuarioService.buscarUsuarioAutenticado().ifPresentOrElse(

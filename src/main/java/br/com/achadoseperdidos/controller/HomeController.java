@@ -17,6 +17,11 @@ public class HomeController {
 
     private final AnuncioService anuncioService;
 
+    /**
+     * Cria o controller com o servico usado na listagem inicial.
+     *
+     * @param anuncioService servico responsavel pelos anuncios
+     */
     public HomeController(AnuncioService anuncioService) {
         this.anuncioService = anuncioService;
     }

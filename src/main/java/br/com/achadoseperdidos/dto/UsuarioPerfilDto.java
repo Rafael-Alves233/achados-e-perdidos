@@ -13,6 +13,12 @@ public class UsuarioPerfilDto {
     @Size(max = 120, message = "O nome deve ter no maximo 120 caracteres.")
     private String nome;
 
+    /**
+     * Converte o usuario persistido nos dados editaveis do formulario de perfil.
+     *
+     * @param usuario usuario usado como origem
+     * @return DTO preenchido com os dados editaveis
+     */
     public static UsuarioPerfilDto from(Usuario usuario) {
         UsuarioPerfilDto dto = new UsuarioPerfilDto();
         dto.setNome(usuario.getNome());

@@ -35,52 +35,49 @@ As seções de funcionalidades implementadas e planejadas, apresentadas mais adi
 ```mermaid
 classDiagram
     class Usuario {
-        Long id
-        String nome
-        String email
-        String senha
-        TipoUsuario tipoUsuario
+        -id: Long
+        -nome: String
+        -email: String
+        -senha: String
+        -tipoUsuario: TipoUsuario
     }
 
     class Anuncio {
-        Long id
-        String titulo
-        String descricao
-        TipoAnuncio tipoAnuncio
-        String local
-        LocalDate data
-        String imagem
-        StatusAnuncio status
+        -id: Long
+        -titulo: String
+        -descricao: String
+        -tipoAnuncio: TipoAnuncio
+        -local: String
+        -data: LocalDate
+        -imagem: String
+        -status: StatusAnuncio
     }
 
     class Categoria {
-        Long id
-        String nome
+        -id: Long
+        -nome: String
     }
 
     class TipoUsuario {
-        <<enum>>
+        <<enumeration>>
         USUARIO
         ADMIN
     }
 
     class TipoAnuncio {
-        <<enum>>
+        <<enumeration>>
         PERDIDO
         ENCONTRADO
     }
 
     class StatusAnuncio {
-        <<enum>>
+        <<enumeration>>
         ATIVO
         RESOLVIDO
     }
 
-    Usuario "1" --> "0..*" Anuncio
-    Categoria "1" --> "0..*" Anuncio
-    Usuario --> TipoUsuario
-    Anuncio --> TipoAnuncio
-    Anuncio --> StatusAnuncio
+    Usuario "1" --> "0..*" Anuncio : publica
+    Categoria "1" --> "0..*" Anuncio : classifica
 ```
 
 ## Ferramentas Escolhidas
@@ -105,33 +102,92 @@ classDiagram
 
 ## Como Executar
 
-Requisitos:
+### Requisitos
 
-- Java 17
-- Maven
+- JDK 17 instalado e configurado no `PATH`
+- Maven instalado e configurado no `PATH`
+- Git, caso o projeto seja obtido diretamente do GitHub
+- Navegador web atualizado
 
-Comandos principais:
+Verifique o ambiente antes de executar:
+
+```bash
+java -version
+mvn -version
+```
+
+Os dois comandos devem indicar que o Maven está utilizando o Java 17.
+
+### Obter o código-fonte
+
+Clone o repositório e entre na pasta do projeto:
+
+```bash
+git clone https://github.com/Rafael-Alves233/achados-e-perdidos.git
+cd achados-e-perdidos
+```
+
+Caso o projeto tenha sido recebido como arquivo compactado, extraia o conteúdo e abra o terminal na pasta que contém o arquivo `pom.xml`.
+
+### Executar pelo Maven
+
+Na raiz do projeto, execute:
 
 ```bash
 mvn spring-boot:run
 ```
 
-A aplicacao fica disponivel em `http://localhost:8080`.
+Na primeira execução, o Maven pode levar alguns minutos para baixar as dependências. Quando o terminal informar que a aplicação foi iniciada, acesse:
 
-Os dados cadastrados ficam salvos localmente na pasta `data/`, usando H2 em arquivo. Essa pasta esta no `.gitignore`, portanto o banco gerado na maquina do desenvolvedor nao e enviado para o GitHub.
+`http://localhost:8080`
 
-Para executar os testes automatizados:
+Para encerrar a aplicação, pressione `Ctrl + C` no terminal.
+
+### Executar os testes
 
 ```bash
 mvn test
 ```
 
-Para gerar o arquivo `.jar`:
+Os testes utilizam um banco H2 separado, em memória, e não alteram os dados cadastrados durante o uso normal da aplicação.
+
+### Gerar e executar o arquivo JAR
+
+Para executar os testes e gerar o arquivo `.jar`:
 
 ```bash
-mvn package
+mvn clean package
 ```
 
+O arquivo será criado em:
+
+`target/achados-e-perdidos-0.0.1-SNAPSHOT.jar`
+
+Depois, execute-o com:
+
+```bash
+java -jar target/achados-e-perdidos-0.0.1-SNAPSHOT.jar
+```
+
+Para executar um `.jar` já fornecido, apenas o Java 17 é necessário; o Maven não precisa estar instalado.
+
+### Alterar a porta
+
+Se a porta 8080 estiver ocupada, escolha outra porta ao executar o JAR:
+
+```bash
+java -jar target/achados-e-perdidos-0.0.1-SNAPSHOT.jar --server.port=8081
+```
+
+Nesse exemplo, a aplicação ficará disponível em `http://localhost:8081`.
+
+### Persistência dos dados
+
+- O banco H2 é criado na pasta `data/`.
+- As imagens enviadas pelos usuários são armazenadas na pasta `uploads/`.
+- As duas pastas são criadas no diretório em que a aplicação é executada.
+- Para manter usuários, anúncios e imagens entre execuções, preserve essas pastas junto ao arquivo JAR.
+- As pastas estão no `.gitignore`, portanto os dados locais não são enviados ao GitHub.
 
 ## Funcionalidades Implementadas
 
@@ -164,6 +220,20 @@ mvn package
 - Incluem testes unitarios pequenos de `ImagemStorageService`, sem subir servidor, Spring ou banco.
 - Incluem testes de acesso ao painel administrativo e bloqueio para usuario comum.
 - Resultado atual: 35 testes, 0 falhas.
+
+## Documentação do Código
+
+O projeto utiliza comentários JavaDoc nas classes e operações principais. A documentação HTML é gerada pelo Maven JavaDoc Plugin configurado no arquivo `pom.xml`.
+
+Para gerar a documentação HTML do código, execute na raiz do projeto:
+
+```bash
+mvn javadoc:javadoc
+```
+
+Após a conclusão, abra o seguinte arquivo no navegador:
+
+`target/site/apidocs/index.html`
 
 ## Acesso de Demonstracao
 

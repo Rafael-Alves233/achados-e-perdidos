@@ -28,6 +28,14 @@ public class AnuncioService {
     private final UsuarioService usuarioService;
     private final ImagemStorageService imagemStorageService;
 
+    /**
+     * Cria o servico com os repositorios e colaboradores do fluxo de anuncios.
+     *
+     * @param anuncioRepository repositorio de anuncios
+     * @param categoriaRepository repositorio de categorias
+     * @param usuarioService servico usado para identificar o usuario autenticado
+     * @param imagemStorageService servico responsavel pelos arquivos de imagem
+     */
     public AnuncioService(
             AnuncioRepository anuncioRepository,
             CategoriaRepository categoriaRepository,

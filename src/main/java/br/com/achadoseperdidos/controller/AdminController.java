@@ -16,6 +16,11 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    /**
+     * Cria o controller com o servico que consolida os dados administrativos.
+     *
+     * @param adminService servico responsavel pelos indicadores do painel
+     */
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
     }

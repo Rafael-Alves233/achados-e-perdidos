@@ -20,6 +20,11 @@ public class AuthController {
 
     private final UsuarioService usuarioService;
 
+    /**
+     * Cria o controller com o servico usado no cadastro de usuarios.
+     *
+     * @param usuarioService servico responsavel pelas operacoes de usuario
+     */
     public AuthController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }

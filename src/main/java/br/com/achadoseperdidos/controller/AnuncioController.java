@@ -25,6 +25,11 @@ public class AnuncioController {
 
     private final AnuncioService anuncioService;
 
+    /**
+     * Cria o controller com o servico que executa as operacoes de anuncios.
+     *
+     * @param anuncioService servico responsavel pelas regras de anuncios
+     */
     public AnuncioController(AnuncioService anuncioService) {
         this.anuncioService = anuncioService;
     }

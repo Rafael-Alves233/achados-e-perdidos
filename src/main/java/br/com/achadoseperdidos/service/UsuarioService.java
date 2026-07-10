@@ -27,6 +27,12 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Cria o servico com a persistencia e o codificador seguro de senhas.
+     *
+     * @param usuarioRepository repositorio de usuarios
+     * @param passwordEncoder componente usado para criptografar senhas
+     */
     public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;

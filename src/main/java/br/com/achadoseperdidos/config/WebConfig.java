@@ -16,6 +16,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final Path uploadDir;
 
+    /**
+     * Configura o caminho fisico que sera exposto pela rota de uploads.
+     *
+     * @param uploadDir caminho configurado pela propriedade {@code app.upload-dir}
+     */
     public WebConfig(@Value("${app.upload-dir:uploads}") String uploadDir) {
         this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize();
     }

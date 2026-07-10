@@ -17,6 +17,17 @@ public class AdminDashboardDto {
     private final long anunciosEncontrados;
     private final List<Anuncio> anuncios;
 
+    /**
+     * Cria um resumo imutavel dos indicadores exibidos no painel.
+     *
+     * @param totalUsuarios quantidade total de usuarios
+     * @param totalAnuncios quantidade total de anuncios
+     * @param anunciosAtivos quantidade de anuncios ativos
+     * @param anunciosResolvidos quantidade de anuncios resolvidos
+     * @param anunciosPerdidos quantidade de itens perdidos
+     * @param anunciosEncontrados quantidade de itens encontrados
+     * @param anuncios anuncios exibidos na listagem administrativa
+     */
     public AdminDashboardDto(
             long totalUsuarios,
             long totalAnuncios,
@@ -34,30 +45,51 @@ public class AdminDashboardDto {
         this.anuncios = anuncios;
     }
 
+    /**
+     * @return quantidade total de usuarios cadastrados
+     */
     public long getTotalUsuarios() {
         return totalUsuarios;
     }
 
+    /**
+     * @return quantidade total de anuncios publicados
+     */
     public long getTotalAnuncios() {
         return totalAnuncios;
     }
 
+    /**
+     * @return quantidade de anuncios ativos
+     */
     public long getAnunciosAtivos() {
         return anunciosAtivos;
     }
 
+    /**
+     * @return quantidade de anuncios resolvidos
+     */
     public long getAnunciosResolvidos() {
         return anunciosResolvidos;
     }
 
+    /**
+     * @return quantidade de anuncios de itens perdidos
+     */
     public long getAnunciosPerdidos() {
         return anunciosPerdidos;
     }
 
+    /**
+     * @return quantidade de anuncios de itens encontrados
+     */
     public long getAnunciosEncontrados() {
         return anunciosEncontrados;
     }
 
+    /**
+     * @return anuncios exibidos no painel administrativo
+     */
     public List<Anuncio> getAnuncios() {
         return anuncios;
     }

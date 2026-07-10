@@ -36,6 +36,11 @@ public class ImagemStorageService {
 
     private final Path uploadDir;
 
+    /**
+     * Configura o diretorio local usado para armazenar os arquivos enviados.
+     *
+     * @param uploadDir caminho configurado pela propriedade {@code app.upload-dir}
+     */
     public ImagemStorageService(@Value("${app.upload-dir:uploads}") String uploadDir) {
         this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize();
     }
