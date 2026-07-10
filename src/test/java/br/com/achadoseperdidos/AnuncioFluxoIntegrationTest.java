@@ -434,6 +434,54 @@ class AnuncioFluxoIntegrationTest {
                 .andExpect(content().string(containsString("ADMIN")));
     }
 
+    // Teste: painel administrativo com indicadores e listagem de anuncios.
+    @Test
+    void deveExibirPainelAdministrativoComIndicadoresEAnuncios() throws Exception {
+        inserirUsuario("Aluno Demo", "aluno@ufes.br", "USUARIO");
+        Long anuncioPerdidoId = cadastrarAnuncio(
+                "Notebook perdido",
+                "Notebook perdido no laboratorio.",
+                "PERDIDO",
+                eletronicosId,
+                "Laboratorio");
+        cadastrarAnuncio(
+                "Carteira encontrada",
+                "Carteira encontrada na biblioteca.",
+                "ENCONTRADO",
+                documentosId,
+                "Biblioteca");
+
+        mockMvc.perform(post("/anuncios/{id}/resolver", anuncioPerdidoId)
+                .with(csrf())
+                .with(usuarioPadrao()))
+                .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(get("/admin").with(usuarioPadrao()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/dashboard"))
+                .andExpect(model().attributeExists("dashboard"))
+                .andExpect(content().string(containsString("Notebook perdido")))
+                .andExpect(content().string(containsString("Carteira encontrada")))
+                .andExpect(content().string(containsString("estado-resolvido")))
+                .andExpect(content().string(containsString("estado-encontrado")))
+                .andExpect(content().string(containsString("data-testid=\"total-usuarios\">2")))
+                .andExpect(content().string(containsString("data-testid=\"total-anuncios\">2")))
+                .andExpect(content().string(containsString("data-testid=\"anuncios-ativos\">1")))
+                .andExpect(content().string(containsString("data-testid=\"anuncios-resolvidos\">1")))
+                .andExpect(content().string(containsString("data-testid=\"anuncios-perdidos\">1")))
+                .andExpect(content().string(containsString("data-testid=\"anuncios-encontrados\">1")));
+    }
+
+    // Teste: bloqueio do painel para usuario que nao e administrador.
+    @Test
+    void deveBloquearPainelAdministrativoParaUsuarioComum() throws Exception {
+        inserirUsuario("Aluno Demo", "aluno@ufes.br", "USUARIO");
+
+        mockMvc.perform(get("/admin")
+                .with(user("aluno@ufes.br").roles("USUARIO")))
+                .andExpect(status().isForbidden());
+    }
+
     // Teste: acesso ao perfil exige login.
     @Test
     void deveRedirecionarParaLoginAoAcessarPerfilSemAutenticacao() throws Exception {

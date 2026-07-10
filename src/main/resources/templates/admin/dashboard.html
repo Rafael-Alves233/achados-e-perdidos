@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel administrativo - Achados e Perdidos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <header class="topbar topbar-compact">
+        <div class="container">
+            <div class="auth-bar">
+                <span th:if="${autenticado}" th:text="${usuarioLogado.nome}">Usuario</span>
+                <a class="auth-link" th:if="${autenticado}" th:href="@{/perfil}">Perfil</a>
+                <a class="auth-link" th:if="${autenticado}" th:href="@{/anuncios/meus}">Meus anuncios</a>
+                <a class="auth-link" th:if="${administrador}" th:href="@{/admin}">Painel admin</a>
+                <form th:if="${autenticado}" th:action="@{/logout}" method="post">
+                    <button class="auth-link" type="submit">Sair</button>
+                </form>
+            </div>
+            <p class="eyebrow">Administracao do sistema</p>
+            <a class="brand-link brand-link-small" th:href="@{/}">Achados e Perdidos</a>
+            <h1>Painel administrativo</h1>
+            <p class="subtitle">Acompanhe os usuarios e os anuncios publicados na plataforma.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="section-header">
+            <div>
+                <p class="eyebrow">Visao geral</p>
+                <h2>Indicadores do sistema</h2>
+            </div>
+            <a class="link-button" th:href="@{/}">Voltar para inicio</a>
+        </section>
+
+        <section class="admin-stats-grid" aria-label="Indicadores administrativos">
+            <article class="admin-stat-card">
+                <span data-testid="total-usuarios" th:text="${dashboard.totalUsuarios}">0</span>
+                <p>Usuarios cadastrados</p>
+            </article>
+            <article class="admin-stat-card">
+                <span data-testid="total-anuncios" th:text="${dashboard.totalAnuncios}">0</span>
+                <p>Anuncios publicados</p>
+            </article>
+            <article class="admin-stat-card">
+                <span data-testid="anuncios-ativos" th:text="${dashboard.anunciosAtivos}">0</span>
+                <p>Anuncios ativos</p>
+            </article>
+            <article class="admin-stat-card">
+                <span data-testid="anuncios-resolvidos" th:text="${dashboard.anunciosResolvidos}">0</span>
+                <p>Anuncios resolvidos</p>
+            </article>
+            <article class="admin-stat-card">
+                <span data-testid="anuncios-perdidos" th:text="${dashboard.anunciosPerdidos}">0</span>
+                <p>Itens perdidos</p>
+            </article>
+            <article class="admin-stat-card">
+                <span data-testid="anuncios-encontrados" th:text="${dashboard.anunciosEncontrados}">0</span>
+                <p>Itens encontrados</p>
+            </article>
+        </section>
+
+        <section class="admin-list-section">
+            <div class="section-header section-header-tight">
+                <div>
+                    <p class="eyebrow">Acompanhamento</p>
+                    <h2>Todos os anuncios</h2>
+                </div>
+                <span class="counter" th:text="${#lists.size(dashboard.anuncios)} + ' registros'">0 registros</span>
+            </div>
+
+            <section class="empty-state" th:if="${#lists.isEmpty(dashboard.anuncios)}">
+                <h3>Nenhum anuncio cadastrado</h3>
+                <p>Os anuncios publicados pelos usuarios aparecerao aqui.</p>
+            </section>
+
+            <div class="admin-table-wrapper" th:if="${!#lists.isEmpty(dashboard.anuncios)}">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Anuncio</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Publicado por</th>
+                            <th scope="col">Data</th>
+                            <th scope="col"><span class="sr-only">Acoes</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="anuncio : ${dashboard.anuncios}"
+                            th:classappend="${anuncio.status.name() == 'RESOLVIDO'} ? 'estado-resolvido' :
+                                (${anuncio.tipoAnuncio.name() == 'PERDIDO'} ? 'estado-perdido' : 'estado-encontrado')">
+                            <td>
+                                <strong th:text="${anuncio.titulo}">Titulo do anuncio</strong>
+                                <span class="table-secondary" th:text="${anuncio.categoria.nome}">Categoria</span>
+                            </td>
+                            <td th:text="${anuncio.tipoAnuncio}">PERDIDO</td>
+                            <td><span class="table-status" th:text="${anuncio.status}">ATIVO</span></td>
+                            <td th:text="${anuncio.usuario.nome}">Usuario</td>
+                            <td th:text="${#temporals.format(anuncio.data, 'dd/MM/yyyy')}">18/06/2026</td>
+                            <td><a class="link-button table-action" th:href="@{/anuncios/{id}(id=${anuncio.id})}">Ver detalhes</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
