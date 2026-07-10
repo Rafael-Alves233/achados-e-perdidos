@@ -154,6 +154,7 @@ mvn package
 - Banco H2 em arquivo para manter usuarios e anuncios apos reiniciar a aplicacao
 - Página inicial com Thymeleaf
 - Dados iniciais de demonstracao com administrador, usuario comum e anuncios de exemplo
+- Painel administrativo com indicadores gerais e listagem de todos os anuncios
 
 ## Testes Automatizados
 
@@ -161,7 +162,8 @@ mvn package
 - Cobrem fluxos web com Spring Boot, MockMvc, H2 em memoria e JdbcTemplate.
 - Incluem cenarios especificos de upload invalido, filtros, e-mail duplicado, senhas diferentes, pagina "Meus anuncios", perfil do usuario, permissoes de edicao/resolucao/exclusao e remocao fisica de imagem.
 - Incluem testes unitarios pequenos de `ImagemStorageService`, sem subir servidor, Spring ou banco.
-- Resultado atual: 33 testes, 0 falhas.
+- Incluem testes de acesso ao painel administrativo e bloqueio para usuario comum.
+- Resultado atual: 35 testes, 0 falhas.
 
 ## Acesso de Demonstracao
 

@@ -15,6 +15,7 @@
                 <span th:if="${autenticado}" th:text="${usuarioLogado.nome}">Usuario</span>
                 <a class="auth-link" th:if="${autenticado}" th:href="@{/perfil}">Perfil</a>
                 <a class="auth-link" th:if="${autenticado}" th:href="@{/anuncios/meus}">Meus anuncios</a>
+                <a class="auth-link" th:if="${administrador}" th:href="@{/admin}">Painel admin</a>
                 <form th:if="${autenticado}" th:action="@{/logout}" method="post">
                     <button class="auth-link" type="submit">Sair</button>
                 </form>

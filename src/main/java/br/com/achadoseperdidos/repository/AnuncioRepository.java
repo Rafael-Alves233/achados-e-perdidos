@@ -65,6 +65,20 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
     List<Anuncio> buscarPorUsuario(@Param("usuario") Usuario usuario);
 
     /**
+     * Lista todos os anuncios com os relacionamentos usados no painel administrativo.
+     *
+     * @return anuncios ordenados do mais recente para o mais antigo
+     */
+    @Query("""
+            select a
+            from Anuncio a
+            join fetch a.categoria
+            join fetch a.usuario
+            order by a.data desc, a.id desc
+            """)
+    List<Anuncio> buscarTodosParaAdministracao();
+
+    /**
      * Verifica se um usuario ja possui um anuncio com o mesmo titulo.
      *
      * @param titulo titulo usado na busca
@@ -89,6 +103,22 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
      * @return total de anuncios encontrados
      */
     long countByUsuarioAndStatus(Usuario usuario, StatusAnuncio status);
+
+    /**
+     * Conta anuncios pelo status atual.
+     *
+     * @param status status usado no indicador
+     * @return quantidade de anuncios no status informado
+     */
+    long countByStatus(StatusAnuncio status);
+
+    /**
+     * Conta anuncios pelo tipo de ocorrencia.
+     *
+     * @param tipoAnuncio tipo usado no indicador
+     * @return quantidade de anuncios do tipo informado
+     */
+    long countByTipoAnuncio(TipoAnuncio tipoAnuncio);
 
     /**
      * Lista anuncios ativos aplicando filtros opcionais de busca.
